@@ -294,7 +294,7 @@ vtab/svhn:
 retrieval/flickr30k:
   name: Flickr
   size: 31014
-  main_metric: text_retrieval_recall@1
+  main_metric: mean_recall@1
   time: 115
   tags:
     - retrieval
@@ -303,7 +303,7 @@ retrieval/flickr30k:
 retrieval/mscoco_2014_5k_test_image_text_retrieval:
   name: MSCOCO
   size: 5000
-  main_metric: text_retrieval_recall@1
+  main_metric: mean_recall@1
   time: 23
   tags:
     - retrieval
