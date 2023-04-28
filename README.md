@@ -1,6 +1,6 @@
 # DataComp
 
-[[ Paper ]](https://arxiv.org/abs/2304.14108) [[ Website ]](http://datacomp.ai/)
+[[ Paper ]](https://arxiv.org/abs/2304.14108) [[ Website ]](http://datacomp.ai/) [[ Blog ]](https://laion.ai/blog/datacomp/)
 
 Welcome to our competition. This repository contains the participant tooling necessary to download data from our pool, train CLIP models, evaluate them on downstream tasks and submit to our leaderboard.
 
