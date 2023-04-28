@@ -1,5 +1,7 @@
 # DataComp
 
+[[ Paper ]](https://arxiv.org/abs/2304.14108) [[ Website ]](http://datacomp.ai/)
+
 Welcome to our competition. This repository contains the participant tooling necessary to download data from our pool, train CLIP models, evaluate them on downstream tasks and submit to our leaderboard.
 
 ## Overview
@@ -13,7 +15,7 @@ Our benchmark offers two tracks: one where participants must use only samples fr
 
 DataComp is structured to accommodate participants with diverse levels of computational resources: each track is broken down into four scales, with varying amounts of compute requirements.
 
-An overview of our benchmark and participant workflow can be found below.
+An overview of our benchmark and participant workflow can be found below. For more information, check out our [paper](https://arxiv.org/abs/2304.14108) and [website](http://datacomp.ai/).
 
 <p align="center">
 <img src="figs/workflow.png" alt="Participant workflow" width="100%"/>
@@ -150,3 +152,17 @@ Please note that the name of your method and the authors (and no other informati
 
 **Important:** We highly encourage users to specify the samples used to train the model using the `--samples` flag. This can be either file(s) containing the uids of samples from our pool, and/or other files specifying the urls and captions for images outside our pool. You can specify multiple files using the `::` separator, for instance `--samples=/path/to/sample_ids.npy::/path/to/custom_data.parquet`.
 We also highly encourage participants to also upload the checkpoints for their trained models using the `--upload-checkpoint` flag. 
+
+
+## Citation
+
+If you found this repository, our paper or data useful, please consider citing:
+
+```
+@article{datacomp,
+  title={DataComp: In search of the next generation of multimodal datasets},
+  author={Samir Yitzhak Gadre, Gabriel Ilharco, Alex Fang, Jonathan Hayase, Georgios Smyrnis, Thao Nguyen, Ryan Marten, Mitchell Wortsman, Dhruba Ghosh, Jieyu Zhang, Eyal Orgad, Rahim Entezari, Giannis Daras, Sarah Pratt, Vivek Ramanujan, Yonatan Bitton, Kalyani Marathe, Stephen Mussmann, Richard Vencu, Mehdi Cherti, Ranjay Krishna, Pang Wei Koh, Olga Saukh, Alexander Ratner, Shuran Song, Hannaneh Hajishirzi, Ali Farhadi, Romain Beaumont, Sewoong Oh, Alex Dimakis, Jenia Jitsev, Yair Carmon, Vaishaal Shankar, Ludwig Schmidt},
+  journal={arXiv preprint arXiv:2304.14108},
+  year={2023}
+}
+```
