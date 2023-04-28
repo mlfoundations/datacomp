@@ -1,0 +1,33 @@
+#################
+# PUBLIC FIELDS #
+#################
+
+# The following fields *will* be shared publicly.
+
+# Name of the method to be shown on the leaderboard
+METHOD_NAME: test
+# Email for contact.
+EMAIL: gabriel.ilharco@gmail.com
+# Name of the contact person.
+CONTACT_AUTHOR: Gabriel Ilharco
+
+
+##################
+# PRIVATE FIELDS #
+##################
+
+# The following fields *won't* be shared publicly.
+
+# Huggingface hub credentials
+HF_USERNAME: gabrielilharco
+HF_REPOSITORY_NAME: test
+
+# Path to where the samples are stored
+SAMPLE_IDS_FILENAME: out/sample_ids.npy
+
+# Path to the checkpoint of the trained model
+MODEL_CHECKPOINT: openai
+
+# Model architecture (ViT-B-32 or ViT-L-14)
+
+MODEL_ARCHITECTURE: ViT-B-32
