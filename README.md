@@ -112,7 +112,7 @@ The hyper-parameters used for training are fixed for a given scale. For the `sma
 
 ### [Optional] Pre-download evaluation datasets
 
-Pre-downloading evaluation datasets is optional if you have a strong Internet connection; by default, the data will be streamed directly from Huggingface Hub. If you wish to download the data, run the following command, replacing `$download_dir` with your desired download path:
+Pre-downloading evaluation datasets is optional if you have a strong Internet connection; by default, the data will be streamed directly from Hugging Face Hub. If you wish to download the data, run the following command, replacing `$download_dir` with your desired download path:
 
 ```
 python download_evalsets.py $download_dir
@@ -135,11 +135,11 @@ By default, the evaluation script outputs to the same directory as `$train_outpu
 
 To submit, you'll run the evaluate script with some extra flags.
 
-The submission script will upload files to HuggingFace Hub (like the model checkpoint and the file specifying the sample ids), and you will need a HuggingFace account for that, and a repository where these artifacts will be stored. To do so, follow these steps: 
+The submission script will upload files to Hugging Face Hub (like the model checkpoint and the file specifying the sample ids), and you will need a Hugging Face account for that, and a repository where these artifacts will be stored. To do so, follow these steps: 
 
 1. Make sure you have `git-lfs` installed (run `git lfs install` if not)
-2. Create a HuggingFace account at https://huggingface.co/join.
-3. Login to your HuggingFace account: `huggingface-cli login`
+2. Create a Hugging Face account at https://huggingface.co/join.
+3. Login to your Hugging Face account: `huggingface-cli login`
 4. Create a repository where the data will be stored: `huggingface-cli repo create <REPO_NAME> --type model`.
 
 Once you're ready to submit, run the evaluation script with some extra flags, for example:
