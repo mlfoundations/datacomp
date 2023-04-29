@@ -34,6 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--thread_count', type=int, required=False, default=128, help='Number of threads for download.')
     parser.add_argument('--image_size', type=int, required=False, default=512, help='Size images need to be downloaded to.')
     parser.add_argument('--resize_mode', type=str, required=False, choices=["no", "border", "keep_ratio", "keep_ratio_largest", "center_crop"], default='keep_ratio_largest', help='Resizing mode used by img2dataset when downloading images.')
+    parser.add_argument('--resize_only_if_bigger', help='If true, resize only if images are bigger than target size.', action='store_true', default=False)
     parser.add_argument('--output_format', type=str, required=False, choices=["webdataset", "tfrecord", "parquet", "files"], default='webdataset', help='Output format used by img2dataset when downloading images.')
     
     args = parser.parse_args()
@@ -121,7 +122,7 @@ if __name__ == '__main__':
         processes_count=args.processes_count,
         thread_count=args.thread_count,
         resize_mode=args.resize_mode,
-        resize_only_if_bigger=False,
+        resize_only_if_bigger=args.resize_only_if_bigger,
         output_format=args.output_format,
         input_format='parquet',
         url_col='url',
