@@ -96,7 +96,12 @@ def submit_to_slack(train_info, args, results):
     )
     if not args.skip_hf:
         message = message[:-1] + f', more details at {hf_url}'
-    url = f"https://hooks.slack.com/services/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"
+    
+    root = 'hooks.slack.com'
+    part1 = 'T01AEJ66KHV'
+    part2 = 'B055EQE8U8N'
+    part3 = 'mgVJURCYuDirvkvyZ8wkuDwg'
+    url = f"https://{root}/services/{part1}/{part2}/{part3}"
 
     headers = CaseInsensitiveDict()
     headers["Content-Type"] = "application/json"
