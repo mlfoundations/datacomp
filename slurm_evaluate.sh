@@ -1,9 +1,7 @@
-# NOTE: deprecated.
-
 #!/bin/bash
 
 #SBATCH -p g40n404
-#SBATCH --comment "laion"
+#SBATCH --comment "<account-name>"
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -c 8

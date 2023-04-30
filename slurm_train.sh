@@ -29,14 +29,15 @@ echo $HOSTNAMES
 
 # Change these as needed!
 DATA_PATH="/path/to/data/dir"
-SCALE="12.8M"
+SCALE="small"
 SEED=0
 OUTPUT_DIR="/path/to/output/dir"
 NUM_CHECKPOINTS=8
 EXP_NAME="datacomp-scale-${SCALE}-seed${SEED}"
 PRECISION="amp"  # You can also use amp_bfloat16 if supported by your hardware.
 
-srun --comment laion --cpu_bind=v --accel-bind=gn python train.py \
+# Change comment as needed
+srun --comment "<comment>" --cpu_bind=v --accel-bind=gn python train.py \
     --scale ${SCALE} \
     --data_dir ${DATA_PATH} \
     --output_dir ${OUTPUT_DIR} \
