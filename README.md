@@ -58,6 +58,17 @@ If the flag `--download_npz` is used, the script will also download the `.npz` f
 The data is stored in shards, which are `tar` files with the images and captions to be consumed by [webdataset](https://github.com/webdataset/webdataset/).
 Once the download finishes, the data will be available at `$data_dir/shards`.
 
+The disk requirements for each scale are shown below.
+
+|                 | metadata (parquets) | metadata (npzs) | data (tars) | 
+| :-------------- | :-----------------: | :-------------: | :---------: |
+| `small` scale   |        3 GB         |      75GB       |    450 GB   |
+| `medium` scale  |       30 GB         |     750GB       |    4.5 TB   |
+| `large` scale   |      300 GB         |     7.5TB       |    45 TB    |
+| `xlarge` scale  |        3 TB         |      75TB       |    450 TB   |
+
+
+
 ### Downloading external data
 
 The script `download_upstream.py` can also be used to download other image-text datasets, using [img2dataset](https://github.com/rom1504/img2dataset).
