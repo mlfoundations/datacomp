@@ -2,11 +2,11 @@ import os
 from functools import partial
 from multiprocessing import Pool
 
+import fasttext
+import fsspec
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-import fasttext
-import fsspec
 
 fasttext.FastText.eprint = lambda x: None
 lang_detect_model = fasttext.load_model(
@@ -30,8 +30,34 @@ def get_chars_count(text):
     return len(text)
 
 
-def load_uids_with_basic_filter_helper(path):
+def get_cluster_labels(centroids, x, batch_size=1024):
+    labels = []
+    for i in range(0, len(x), batch_size):
+        x_batch = x[i:i + batch_size]
+        scores = np.einsum("ik, jk -> ij", x_batch, centroids)
+        labels_batch = np.argmax(scores, axis=1)
+        labels.append(labels_batch)
+    labels = np.concatenate(labels)
+    return labels
 
+
+def clustering_filter(uids, candidate_embedding, centroids, target_embedding, batch_size=1024):
+    target_cluster_labels = get_cluster_labels(centroids, target_embedding, batch_size=batch_size)
+    clusters_w_target = np.unique(target_cluster_labels)
+
+    # it's unlikely we can load all candidate_embedding into memory
+    candidate_labels = get_cluster_labels(centroids, candidate_embedding, batch_size=batch_size)
+    cluster_to_uids = {}
+    for uid, label in zip(uids, candidate_labels):
+        cluster_to_uids.setdefault(label, []).append(uid)
+
+    uids_to_keep = []
+    for cluster in clusters_w_target:
+        uids_to_keep.extend(cluster_to_uids[cluster])
+    return np.array([(int(uid[:16], 16), int(uid[16:32], 16)) for uid in uids_to_keep], np.dtype("u8,u8"))
+
+
+def load_uids_with_basic_filter_helper(path):
     df = pd.read_parquet(
         path, columns=["uid", "text", "original_width", "original_height"]
     )
@@ -40,8 +66,8 @@ def load_uids_with_basic_filter_helper(path):
     df["caption_num_words"] = df.text.apply(lambda x: get_words_count(x))
     df["caption_num_chars"] = df.text.apply(lambda x: get_chars_count(x))
     uid_int = df.uid.apply(int, base=16)
-    df["uid_upper_uint64"] = (uid_int // 2**64).astype("uint64")
-    df["uid_lower_uint64"] = (uid_int % 2**64).astype("uint64")
+    df["uid_upper_uint64"] = (uid_int // 2 ** 64).astype("uint64")
+    df["uid_lower_uint64"] = (uid_int % 2 ** 64).astype("uint64")
 
     df = df.drop("uid", axis=1)
     df = df.drop("text", axis=1)
@@ -88,7 +114,6 @@ def get_threshold(paths, key, p=0.3, n_workers=50):
 
 
 def load_uids_with_threshold(path, key, threshold, n_workers):
-
     fs, url = fsspec.core.url_to_fs(path)
     paths = [str(x) for x in fs.ls(url) if ".parquet" in x]
 
@@ -102,15 +127,14 @@ def load_uids_with_threshold(path, key, threshold, n_workers):
 
 
 def load_uids_with_basic_filter(path, n_workers):
-
     fs, url = fsspec.core.url_to_fs(path)
     paths = [str(x) for x in fs.ls(url) if ".parquet" in x]
 
     with Pool(n_workers) as pool:
         uids = []
         for u in tqdm(
-            pool.imap_unordered(load_uids_with_basic_filter_helper, paths),
-            total=len(paths),
+                pool.imap_unordered(load_uids_with_basic_filter_helper, paths),
+                total=len(paths),
         ):
             uids.append(u)
 
