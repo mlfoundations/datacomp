@@ -35,6 +35,65 @@ def get_chars_count(text):
     return len(text)
 
 
+@torch.no_grad()
+def score(x, y):
+    bs_score = torch.einsum("ik, jk -> ij", x, y)
+    index = torch.argmax(bs_score, dim=1)
+    index_pt = index.long()
+    return index_pt
+
+
+class runner():
+    def __init__(self, feat, center, rank, size=8):
+        self.num_local = feat.shape[0] // size + int(rank < feat.shape[0] % size)
+        self.start = feat.shape[0] // size * rank + min(rank, feat.shape[0] % size)
+        current_feat = feat[self.start: self.start + self.num_local]
+        self.feat = torch.from_numpy(current_feat).to(torch.device(rank % size))
+        self.center = torch.from_numpy(center).to(torch.device(rank % size))
+        self.is_end = False
+        self.index = 0
+
+        self.pt_label = torch.zeros(self.feat.size(0), dtype=torch.long, device=self.feat.device)
+
+    def __call__(self, batch_size):
+        if self.index + batch_size < self.num_local:
+            end = self.index + batch_size
+        else:
+            end = self.num_local
+            self.is_end = True
+
+        x = self.feat[self.index: end]
+        y = self.center
+
+        index_pt = score(x, y)
+        self.pt_label[self.index: end] = index_pt
+        self.index += batch_size
+
+
+@torch.no_grad()
+def get_cluster_labels_gpu(centroids, x, batch_size, ngpu):
+    size = ngpu
+
+    list_runner = []
+
+    for rank in range(size):
+        list_runner.append(runner(x, centroids, rank, ngpu))
+
+    end_list = [0, ] * size
+    while sum(end_list) < size:
+        for idx, runner_instance in enumerate(list_runner):
+            runner_instance: runner
+            if not end_list[idx]:
+                runner_instance(batch_size)
+            if runner_instance.is_end:
+                end_list[idx] = 1
+
+    np_label = np.concatenate([x.pt_label.cpu().numpy() for x in list_runner])
+    return np_label
+
+
+
+
 def get_cluster_labels(centroids, x, batch_size=1024):
     labels = []
     for i in range(0, len(x), batch_size):
@@ -46,7 +105,7 @@ def get_cluster_labels(centroids, x, batch_size=1024):
     return labels
 
 
-def clustering_filter_helper(path_root, centroids, target_embedding, batch_size=1024):
+def clustering_filter_helper(path_root, centroids, target_clusters, batch_size=1024):
     df = pd.read_parquet(
         f'{path_root}.parquet', columns=["uid", "text"]
     )
@@ -62,16 +121,13 @@ def clustering_filter_helper(path_root, centroids, target_embedding, batch_size=
 
     uids = df.uid[mask]
 
-    target_cluster_labels = get_cluster_labels(centroids, target_embedding, batch_size=batch_size)
-    clusters_w_target = np.unique(target_cluster_labels)
-
     candidate_labels = get_cluster_labels(centroids, candidate_embedding[mask], batch_size=batch_size)
     cluster_to_uids = {}
     for uid, label in zip(uids, candidate_labels):
         cluster_to_uids.setdefault(label, []).append(uid)
 
     uids_to_keep = []
-    for cluster in clusters_w_target:
+    for cluster in target_clusters:
         if cluster in cluster_to_uids:
             uids_to_keep.extend(cluster_to_uids[cluster])
     return np.array([(int(uid[:16], 16), int(uid[16:32], 16)) for uid in uids_to_keep], np.dtype("u8,u8"))
@@ -237,13 +293,16 @@ def load_uids_with_image_filtering(path, scale, n_workers):
     target_embedding = torch.load('baselines/assets/in1k_vit_l14.pt')
     centroids = torch.load(f'baselines/assets/{prefix}_centroids.pt')
 
+    target_cluster_labels = get_cluster_labels(centroids, target_embedding, batch_size=batch_size)
+    target_clusters = np.unique(target_cluster_labels)
+
     fs, url = fsspec.core.url_to_fs(path)
     paths = [str(x.split('.parquet')[0]) for x in fs.ls(url) if ".parquet" in x]
 
     worker = partial(
         clustering_filter_helper,
         centroids=centroids,
-        target_embedding=target_embedding
+        target_clusters=target_clusters
     )
 
     with Pool(n_workers) as pool:
