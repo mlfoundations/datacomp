@@ -2,7 +2,7 @@ import argparse
 import os
 from pathlib import Path
 
-from baselines.functions import function_wrapper
+from baselines.apply_filter import apply_filter
 
 NAMED_BASELINES = {
     "no_filter",
@@ -12,7 +12,7 @@ NAMED_BASELINES = {
     "laion",
     "clip_score_l14_30_percent",
     "clip_score_b32_30_percent",
-    "datacomp_1b",
+    "image_based_intersect_clip_score_l14_30_percent",
 }
 
 UNNAMED_BASELINES = {
@@ -21,6 +21,13 @@ UNNAMED_BASELINES = {
     "clip_score_l14_threshold",
     "clip_score_b32_threshold",
 }
+
+SCALES = [
+    "small",
+    "medium",
+    "large",
+    "xlarge",
+]
 
 
 def check_args(args):
@@ -39,6 +46,12 @@ def check_args(args):
             raise ValueError(
                 "--threshold value must be passed for *_threshold baselines"
             )
+    if args.name == "image_based" or args.name == "image_based_intersect_clip_score_l14_30_percent":
+        if args.scale is None:
+            raise ValueError(
+                "--scale value must be passed for image_based and image_based_intersect_clip_score_l14_30_percent baselines (for clustering)"
+            )
+
     npy_parent = Path(args.save_path).parent
     if not os.path.exists(npy_parent):
         print(f"creating: {npy_parent}")
@@ -94,6 +107,15 @@ if __name__ == "__main__":
         help="number of workers, generally set to number of cpu cores",
     )
 
+    parser.add_argument(
+        "--scale",
+        type=str,
+        required=False,
+        choices=SCALES,
+        help="datacomp scale, used for the clutering baselines",
+        default=None
+    )
+
     args = parser.parse_args()
 
-    function_wrapper(args)
+    apply_filter(args)
