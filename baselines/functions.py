@@ -35,6 +35,14 @@ def get_chars_count(text):
     return len(text)
 
 
+def text_basic_filter(df):
+    df['caption_num_words'] = df.text.apply(lambda x: len(fasttext.tokenize(x)))
+    df['caption_num_chars'] = df.text.apply(len)
+    lang_preds, _ = lang_detect_model.predict([x.replace('\n', ' ') for x in df.text.values], k=1)
+    df['fasttext_lang_pred'] = [x[0].replace('__label__', '') for x in lang_preds]
+    mask = ((df['fasttext_lang_pred'] == 'en') & (df['caption_num_words'] > 1) & (df['caption_num_chars'] > 5))
+    return mask.to_numpy()
+
 @torch.no_grad()
 def score(x, y):
     bs_score = torch.einsum("ik, jk -> ij", x, y)
@@ -112,12 +120,7 @@ def clustering_filter_helper(path_root, centroids, target_clusters, batch_size=1
     candidate_embedding = np.load(f'{path_root}.npz')['l14_img']
 
     # modified version of basic filtering first
-    df['caption_num_words'] = df.text.apply(lambda x: len(fasttext.tokenize(x)))
-    df['caption_num_chars'] = df.text.apply(len)
-    lang_preds, _ = lang_detect_model.predict([x.replace('\n', ' ') for x in df.text.values], k=1)
-    df['fasttext_lang_pred'] = [x[0].replace('__label__', '') for x in lang_preds]
-    mask = ((df['fasttext_lang_pred'] == 'en') & (df['caption_num_words'] > 1) & (df['caption_num_chars'] > 5))
-    mask = mask.to_numpy()
+    mask = text_basic_filter(df)
 
     uids = df.uid[mask]
 
