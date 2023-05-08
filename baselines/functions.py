@@ -5,14 +5,18 @@ from baselines.utils import (
     save_uids,
     load_uids_with_threshold,
     load_uids_with_basic_filter,
+    load_uids_with_text_entity,
 )
 
 
 def function_wrapper(args):
     uids = None
-    if args.name == "no_filter": # VALIDATED
+    if args.name == "no_filter":
         uids = load_uids_with_threshold(
-            args.metadata_dir, "clip_b32_similarity_score", float('-inf'), args.num_workers
+            args.metadata_dir,
+            "clip_b32_similarity_score",
+            float("-inf"),
+            args.num_workers,
         )
     elif args.name == "basic_filter":
         uids = load_uids_with_basic_filter(
@@ -20,7 +24,10 @@ def function_wrapper(args):
             args.num_workers,
         )
     elif args.name == "text_based":
-        raise NotImplementedError()
+        uids = load_uids_with_text_entity(
+            args.metadata_dir,
+            args.num_workers,
+        )
     elif args.name == "image_based":
         raise NotImplementedError()
     elif args.name == "laion":
@@ -101,5 +108,5 @@ def function_wrapper(args):
     else:
         raise ValueError(f"Unknown args.name argument: {args.name}")
 
-    print(f'saving {args.save_path} with {len(uids)} entries')
+    print(f"saving {args.save_path} with {len(uids)} entries")
     save_uids(uids, args.save_path)
