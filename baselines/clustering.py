@@ -46,9 +46,6 @@ def train_kmeans(x, k, ngpu):
     clus.train(x, index)
     centroids = faiss.vector_float_to_array(clus.centroids)
 
-    # obj = faiss.vector_float_to_array(clus.obj)
-    # print("final objective: %.4g" % obj[-1])
-
     return centroids.reshape(k, d)
 
 
