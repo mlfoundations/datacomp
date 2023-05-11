@@ -123,7 +123,7 @@ if __name__ == '__main__':
         processes_count=args.processes_count,
         thread_count=args.thread_count,
         resize_mode=args.resize_mode,
-        resize_only_if_bigger=not args.resize_only_if_bigger,
+        resize_only_if_bigger=not args.no_resize_only_if_bigger,
         encode_format=args.encode_format,
         output_format=args.output_format,
         input_format='parquet',
