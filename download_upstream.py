@@ -73,7 +73,6 @@ if __name__ == '__main__':
 
     if not args.skip_shards:
         # Download images.
-        metadata_dir = metadata_dir / f'{args.scale}'
         shard_dir = args.data_dir / 'shards' / f'{args.scale}'
         shard_dir.mkdir(parents=True, exist_ok=True)
         print(f'Downloading images to {shard_dir}')
