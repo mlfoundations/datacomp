@@ -82,7 +82,7 @@ dependencies:
       - googleapis-common-protos==1.57.0
       - grpcio==1.50.0
       - h5py==3.7.0
-      - huggingface-hub==0.11.0
+      - huggingface-hub==0.14.1
       - idna==3.4
       - imageio==2.22.4
       - img2dataset==1.40.0
