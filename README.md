@@ -51,12 +51,17 @@ There are four scales in our competition:
 - `xlarge`: 12.8B pool size, 12.8B examples seen
 
 
+The script will create two directories inside `$data_dir`: `metadata/$scale` and `shards/$scale`. 
 
-Along with the images and captions, this script will also download metadata, including `.parquet` files that contain the image urls, captions, and other potentially useful information such as the similarities between the images and captions given by trained OpenAI CLIP models. 
-If the flag `--download_npz` is used, the script will also download the `.npz` files with features extracted by the trained OpenAI CLIP models for each sample. 
+The metadata directory includes `.parquet` files that contain the 
+image urls, captions, and other potentially useful information such as the similarities between the images and captions given by trained OpenAI CLIP models. 
+If the flag `--download_npz` is used, the script will also download to `.npz` files to the metadata directory. 
+They contain features extracted by the trained OpenAI CLIP models for each sample. We download the metadata from the HuggingFace hub.
 
-The data is stored in shards, which are `tar` files with the images and captions to be consumed by [webdataset](https://github.com/webdataset/webdataset/).
-Once the download finishes, the data will be available at `$data_dir/shards`.
+We download the image data using [img2dataset](https://github.com/rom1504/img2dataset), which stores it as `.tar` shards with the images and captions to be consumed by [webdataset](https://github.com/webdataset/webdataset/).
+Once the download finishes, the data will be available at `$data_dir/shards/$scale`.
+
+To download only metadata, use the `--skip_shards` flag.
 
 The disk requirements for each scale are shown below.
 
@@ -68,12 +73,6 @@ The disk requirements for each scale are shown below.
 | `xlarge` scale  |        3 TB         |      75TB       |    450 TB   |
 
 
-
-### Downloading external data
-
-The script `download_upstream.py` can also be used to download other image-text datasets, using [img2dataset](https://github.com/rom1504/img2dataset).
-Given parquet files containing the image urls and captions, you can use this script to download the images, by using the flag `--metadata_dir` to point to the directory where the parquet files are stored.
-By default, we also download the parquet files corresponding to the pools we provide, and this metadata is stored in a subfolder of `$data_dir`. 
 
 
 ## Selecting samples in the filtering track
