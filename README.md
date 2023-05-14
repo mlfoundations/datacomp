@@ -8,7 +8,7 @@ Welcome to our competition. This repository contains the participant tooling nec
 
 DataComp is a competition about designing datasets for pre-training CLIP models.
 Instead of iterating on model design and hyperparameter tuning like in traditional benchmarks, in DataComp your task is to curate a multimodal pre-training dataset with image-text pairs that yields high accuracy on downstream tasks.
-Model architecture and hyperparameters are fixed allowing participants to innovate on the dataset design. 
+Model architecture and hyperparameters are fixed allowing participants to innovate on the dataset design.
 As part of the benchmark, we provide a large collection of uncurated image-text pairs, crawled from the public internet.
 
 Our benchmark offers two tracks: one where participants must use only samples from the pools we provide (`filtering`), and another where participants can use external data, including samples from our pool (Bring your own data, `BYOD`).
@@ -52,15 +52,15 @@ There are four scales in our competition:
 
 
 
-Along with the images and captions, this script will also download metadata, including `.parquet` files that contain the image urls, captions, and other potentially useful information such as the similarities between the images and captions given by trained OpenAI CLIP models. 
-If the flag `--download_npz` is used, the script will also download the `.npz` files with features extracted by the trained OpenAI CLIP models for each sample. 
+Along with the images and captions, this script will also download metadata, including `.parquet` files that contain the image urls, captions, and other potentially useful information such as the similarities between the images and captions given by trained OpenAI CLIP models.
+If the flag `--download_npz` is used, the script will also download the `.npz` files with features extracted by the trained OpenAI CLIP models for each sample.
 
 The data is stored in shards, which are `tar` files with the images and captions to be consumed by [webdataset](https://github.com/webdataset/webdataset/).
 Once the download finishes, the data will be available at `$data_dir/shards`.
 
 The disk requirements for each scale are shown below.
 
-|                 | metadata (parquets) | metadata (npzs) | data (tars) | 
+|                 | metadata (parquets) | metadata (npzs) | data (tars) |
 | :-------------- | :-----------------: | :-------------: | :---------: |
 | `small` scale   |        3 GB         |      75GB       |    450 GB   |
 | `medium` scale  |       30 GB         |     750GB       |    4.5 TB   |
@@ -73,7 +73,7 @@ The disk requirements for each scale are shown below.
 
 The script `download_upstream.py` can also be used to download other image-text datasets, using [img2dataset](https://github.com/rom1504/img2dataset).
 Given parquet files containing the image urls and captions, you can use this script to download the images, by using the flag `--metadata_dir` to point to the directory where the parquet files are stored.
-By default, we also download the parquet files corresponding to the pools we provide, and this metadata is stored in a subfolder of `$data_dir`. 
+By default, we also download the parquet files corresponding to the pools we provide, and this metadata is stored in a subfolder of `$data_dir`.
 
 
 ## Selecting samples in the filtering track
@@ -102,7 +102,60 @@ If desired, the resharder can be run in parallel on multiple nodes. The easiest 
 
 ## Baselines
 
-[Code coming soon, stay tuned!]
+Here we provide command lines for the main filter baselines found in Table 3 of our paper, along with short descriptions. Each baseline reads the `.parquet` metadata files (and also the `.npz` files when needed) , selects a subset of `uids`, sorts them, and saves them to a `.npy` subset file. This file can then be input to the resharder described above to create a webdataset containing only the selected subset of the pool.
+
+**Note**: the `--num_workers` flag controls the number of metadata files that are read into memory and processed on parallel. It is set by default to the number of cores, but that may be too much for machine with many cores and limited memory. For baselines other than image-filtering, allow at least 256MB of memory per worker.
+
+### No filtering
+Here we load all metadata `uids` without any additional filtering.
+```
+python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/no_filter.npy --name no_filter
+```
+
+### Basic filtering
+Simple checks on caption length, english being the detected caption language, image size, and image aspect ratio.
+```
+python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/basic_filter.npy --name basic_filter
+```
+
+### CLIP score filtering
+Retain the top k=0.3 fraction of the pool by L/14 CLIP score.
+```
+python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/clip_score_l14_30_percent.npy --name clip_score --arch l14 --fraction 0.3
+```
+
+Retain all examples with B/32 CLIP score above 0.25.
+```
+python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/clip_score_b32_25_threshold.npy --name clip_score --arch b32 --threshold 0.25
+```
+
+### LAION-2B filtering
+Reproduces the filtering strategy used to create the LAION-2B dataset: applies a B/32 CLIP score filter on image-text pairs, retaining samples with score above 0.28, and an English filter using the gcld3 model to detect language.
+```
+python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/laion.npy --name laion2b
+```
+
+### Text-based filtering
+A text filter captions that contain words from the ImageNet-21k synsets.
+```
+python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/text_based.npy --name text_based
+```
+
+### Image-based filtering
+A image clustering based method that retains samples whose images have content close to ImageNet-1k training images, as measured by the nearest-neighbor cluster center of the image's L/14 CLIP embedding.
+
+**Note**: this baseline uses GPU resources. By default it will try to use all GPUs. To control which GPUs are used, set the `CUDA_VISIBLE_DEVICES` environment variable.
+```
+python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/image_based.npy --name image_based --image_based_scale small --batch_size 512
+```
+
+### Intersection of image-based and CLIP score filtering
+Applies both the `CLIP score (L/14) with top 0.3 fraction` filter and an `Image-based` filter. This is our best performing baseline for `medium`, `large`, and `xlarge` scales. We used this strategy at the `xlarge` scale to create the `DataComp-1B` dataset.
+
+**Note**: this baseline uses GPU resources. By default it will try to use all GPUs. To control which GPUs are used, set the `CUDA_VISIBLE_DEVICES` environment variable.
+```
+python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/image_based_intersect_clip_score_l14_30_percent.npy --name image_based_intersect_clip_score --image_based_scale small --batch_size 512 --arch l14 --fraction 0.3
+```
 
 ## Training
 
@@ -115,7 +168,7 @@ We support using multiple different data directories. For instance, if your data
 
 A sample script for training with SLURM with is provided at `tools/slurm_train.sh`.
 
-#### Hyper-parameters 
+#### Hyper-parameters
 
 The hyper-parameters used for training are fixed for a given scale. For the `small` and `medium` scales we use ViT-B/32 models, for the `large` scale, ViT-B/16, and for the `xlarge` scale, ViT-L/14. The number of samples seen during training is determined by the scale, and is equal to the size of the corresponding pool we provide. Additional details on hyper-parameters can be found in the paper.
 
@@ -146,7 +199,7 @@ By default, the evaluation script outputs to the same directory as `$train_outpu
 
 To submit, you'll run the evaluate script with some extra flags.
 
-The submission script will upload files to Hugging Face Hub (like the model checkpoint and the file specifying the sample ids), and you will need a Hugging Face account for that, and a repository where these artifacts will be stored. To do so, follow these steps: 
+The submission script will upload files to Hugging Face Hub (like the model checkpoint and the file specifying the sample ids), and you will need a Hugging Face account for that, and a repository where these artifacts will be stored. To do so, follow these steps:
 
 1. Make sure you have `git-lfs` installed (run `git lfs install` if not)
 2. Create a Hugging Face account at https://huggingface.co/join.
@@ -159,10 +212,10 @@ Once you're ready to submit, run the evaluation script with some extra flags, fo
 python evaluate.py --track=filtering --train_output_dir=$train_output_dir --submit --method_name="your_awesome_method_name" --samples=$sample_files --author="your_name" --email=your@email.com --hf_username=$hf_username --hf_repo_name=$hf_repo_name
 ```
 
-Please note that the name of your method and the authors (and no other information) will be made publicly available in our leaderboard. 
+Please note that the name of your method and the authors (and no other information) will be made publicly available in our leaderboard.
 
 **Important:** We highly encourage users to specify the samples used to train the model using the `--samples` flag. This can be either file(s) containing the uids of samples from our pool, and/or other files specifying the urls and captions for images outside our pool. You can specify multiple files using the `::` separator, for instance `--samples=/path/to/sample_ids.npy::/path/to/custom_data.parquet`.
-We also highly encourage participants to also upload the checkpoints for their trained models using the `--upload-checkpoint` flag. 
+We also highly encourage participants to also upload the checkpoints for their trained models using the `--upload-checkpoint` flag.
 
 
 ## Citation
