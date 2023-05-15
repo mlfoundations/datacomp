@@ -291,11 +291,11 @@ vtab/svhn:
 # Retrieval datasets
 
 # Flickr30k
-retrieval/flickr30k:
+retrieval/flickr_1k_test_image_text_retrieval:
   name: Flickr
-  size: 31014
+  size: 1000
   main_metric: mean_recall@1
-  time: 115
+  time: 20
   tags:
     - retrieval
 
