@@ -157,6 +157,9 @@ Applies both the `CLIP score (L/14) with top 0.3 fraction` filter and an `Image-
 python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/image_based_intersect_clip_score_l14_30_percent.npy --name image_based_intersect_clip_score --image_based_scale small --batch_size 512 --arch l14 --fraction 0.3
 ```
 
+**Note**: this baseline requires pre-computed image cluster centroids which will be downloaded automatically the first time you run it. 
+If you want to generate the centroids yourself, please see `baselines/image_based_clustering.md` for instructions.
+
 ## Training
 
 To train, run the following command:
