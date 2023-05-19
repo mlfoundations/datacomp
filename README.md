@@ -217,6 +217,9 @@ Please note that the name of your method and the authors (and no other informati
 **Important:** We highly encourage users to specify the samples used to train the model using the `--samples` flag. This can be either file(s) containing the uids of samples from our pool, and/or other files specifying the urls and captions for images outside our pool. You can specify multiple files using the `::` separator, for instance `--samples=/path/to/sample_ids.npy::/path/to/custom_data.parquet`.
 We also highly encourage participants to also upload the checkpoints for their trained models using the `--upload-checkpoint` flag.
 
+## Checkpoints
+
+We release the checkpoints for our main baselines as part of [OpenCLIP](https://github.com/mlfoundations/open_clip). More details can be found at https://github.com/mlfoundations/open_clip/blob/main/docs/datacomp_models.md. 
 
 ## Citation
 
