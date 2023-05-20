@@ -149,6 +149,9 @@ A image clustering based method that retains samples whose images have content c
 python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/image_based.npy --name image_based --image_based_scale small --batch_size 512
 ```
 
+**Note**: this baseline requires pre-computed image cluster centroids which will be downloaded automatically the first time you run it. 
+If you want to generate the centroids yourself, please see `baselines/image_based_clustering.md` for instructions.
+
 ### Intersection of image-based and CLIP score filtering
 Applies both the `CLIP score (L/14) with top 0.3 fraction` filter and an `Image-based` filter. This is our best performing baseline for `medium`, `large`, and `xlarge` scales. We used this strategy at the `xlarge` scale to create the `DataComp-1B` dataset.
 
