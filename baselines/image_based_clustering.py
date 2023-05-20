@@ -18,8 +18,8 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 
-from apply_filter import caption_filter
-from utils import random_seed, download
+from baselines.utils import random_seed, download
+from baselines.apply_filter import caption_filter
 
 torch.backends.cudnn.benchmark = True
 
