@@ -26,7 +26,7 @@ An overview of our benchmark and participant workflow can be found below. For mo
 Run:
 
 ```
-conda env create -f environment.yml
+bash create_env.sh
 ```
 
 To activate the environment:
