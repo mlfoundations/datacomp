@@ -1,5 +1,7 @@
 """Evaluate on image-text retrieval datasets."""
 
+import os
+
 import torch
 import open_clip
 import datasets
@@ -38,7 +40,7 @@ def evaluate_retrieval_dataset(
         datasets.load_dataset(
             f"nlphuji/{task.replace('retrieval/', '')}",
             split="test",
-            # cache_dir=data_root
+            cache_dir=os.path.join(data_root, "hf_cache")
         ),
         transform=transform
     )

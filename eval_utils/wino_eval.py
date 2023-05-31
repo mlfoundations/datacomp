@@ -1,3 +1,7 @@
+"""Evaluate on WinoGAViL dataset."""
+
+import os
+
 # from collections import Counter
 from sklearn.metrics import jaccard_score
 
@@ -43,7 +47,7 @@ def evaluate_winogavil_dataset(
         datasets.load_dataset(
             "nlphuji/winogavil",
             split="test",
-            # cache_dir=data_root
+            cache_dir=os.path.join(data_root, "hf_cache")
         ),
         transform=lambda imgs: torch.stack([transform(img) for img in imgs]),
         text_transform=lambda text: tokenizer([get_clip_prompt(text)])
