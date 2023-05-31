@@ -40,7 +40,7 @@ def evaluate_retrieval_dataset(
         datasets.load_dataset(
             f"nlphuji/{task.replace('retrieval/', '')}",
             split="test",
-            cache_dir=os.path.join(data_root, "hf_cache")
+            cache_dir=os.path.join(data_root, "hf_cache") if data_root is not None else None
         ),
         transform=transform
     )
