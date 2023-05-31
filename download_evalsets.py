@@ -3,6 +3,8 @@ import os
 import sys
 import yaml
 
+import datasets
+
 
 VERBOSE = False
 
@@ -22,8 +24,26 @@ def download_datasets(data_dir):
         tasks = yaml.safe_load(f)
     for task, task_info in tasks.items():
         task_name = task_info.get('name', task)
-        if task.startswith("fairness/") or task.startswith("retrieval/") or task.startswith("misc/"):
+        if task.startswith("retrieval/") or task.startswith("misc/"):
+            # Huggingface dataset loader, download those differently
             task = task.split("/", 1)[1]
+            try:
+                print()
+                print(f"""{f" Download '{task_name}' ":=^40s}""")
+                print()
+                datasets.load_dataset(
+                    f"nlphuji/{task}",
+                    split="test",
+                    ignore_verifications=False,
+                    cache_dir=os.path.join(data_dir, "hf_cache")
+                )
+            except Exception as e:
+                print("Failed to download Huggingface dataset, check write permissions and Internet connection", file=sys.stderr)
+                print(e)
+            continue
+        if task.startswith("fairness/"):
+            task = task.split("/", 1)[1]
+        # Download webdataset from Huggingface
         dir_name = f"wds_{task.replace('/', '-')}_test"
         source_url = f"https://huggingface.co/datasets/djghosh/{dir_name}"
         target_path = os.path.join(data_dir, dir_name)
