@@ -315,7 +315,8 @@ misc/winogavil:
   main_metric: jaccard_score_10-12
   time: 1096
   random_score: 0.205000
-  tags: []
+  tags:
+    - retrieval
 
 # WILDS datasets
 
