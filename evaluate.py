@@ -215,8 +215,6 @@ if __name__ == '__main__':
     # Get list of datasets
     with open(os.path.join(os.path.dirname(__file__), 'tasklist.yml')) as f:
         tasks = yaml.safe_load(f)
-        if not args.submit:
-            tasks = {key: val for key, val in tasks.items() if 'val_task' in val['tags']}
 
     # Check for cached results
     results = {}
