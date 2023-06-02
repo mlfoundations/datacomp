@@ -114,8 +114,6 @@ imagenet1k:
   time: 136
   num_classes: 1000
   random_score: 0.001000
-  tags:
-    - val_task
 
 # ImageNet Sketch
 imagenet_sketch:
