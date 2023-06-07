@@ -2,30 +2,24 @@ name: datacomp
 channels:
   - defaults
 dependencies:
-  - _libgcc_mutex=0.1=main
-  - _openmp_mutex=5.1=1_gnu
-  - bzip2=1.0.8=h7b6447c_0
-  - ca-certificates=2022.10.11=h06a4308_0
-  - certifi=2022.9.24=py310h06a4308_0
-  - ld_impl_linux-64=2.38=h1181459_1
-  - libffi=3.3=he6710b0_2
-  - libgcc-ng=11.2.0=h1234567_1
-  - libgomp=11.2.0=h1234567_1
-  - libprotobuf=3.20.1=h4ff587b_0
-  - libstdcxx-ng=11.2.0=h1234567_1
-  - libuuid=1.41.5=h5eee18b_0
-  - ncurses=6.3=h5eee18b_3
-  - openssl=1.1.1s=h7f8727e_0
-  - pip=22.2.2=py310h06a4308_0
-  - python=3.10.8=haa1d7c7_0
-  - readline=8.2=h5eee18b_0
-  - setuptools=65.5.0=py310h06a4308_0
-  - sqlite=3.39.3=h5082296_0
-  - tk=8.6.12=h1ccaba5_0
-  - tzdata=2022f=h04d1e81_0
-  - wheel=0.37.1=pyhd3eb1b0_0
-  - xz=5.2.6=h5eee18b_0
-  - zlib=1.2.13=h5eee18b_0
+  - bzip2=1.0.8
+  - ca-certificates
+  - certifi=2022.9.24
+  - libffi=3.3
+  - libprotobuf
+  - libuuid
+  - ncurses=6.3
+  - openssl=1.1.1s
+  - pip=22.2.2
+  - python=3.10.8
+  - readline=8.2
+  - setuptools=65.5.0
+  - sqlite=3.39.3
+  - tk=8.6.12
+  - tzdata=2022f
+  - wheel=0.37.1
+  - xz=5.2.6
+  - zlib=1.2.13
   - pip:
       - absl-py==1.3.0
       - aiohttp==3.8.3
@@ -82,7 +76,7 @@ dependencies:
       - googleapis-common-protos==1.57.0
       - grpcio==1.50.0
       - h5py==3.7.0
-      - huggingface-hub==0.14.1
+      - huggingface-hub==0.11.0
       - idna==3.4
       - imageio==2.22.4
       - img2dataset==1.40.0
@@ -106,10 +100,6 @@ dependencies:
       - networkx==2.8.8
       - nltk==3.8.1
       - numpy==1.23.4
-      - nvidia-cublas-cu11==11.10.3.66
-      - nvidia-cuda-nvrtc-cu11==11.7.99
-      - nvidia-cuda-runtime-cu11==11.7.99
-      - nvidia-cudnn-cu11==8.5.0.96
       - oauthlib==3.2.2
       - ogb==1.3.5
       - open-clip-torch==2.16.1
@@ -180,3 +170,4 @@ dependencies:
       - xxhash==3.2.0
       - yarl==1.8.2
       - zipp==3.10.0
+
