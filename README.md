@@ -51,12 +51,15 @@ There are four scales in our competition:
 - `xlarge`: 12.8B pool size, 12.8B examples seen
 
 
+The script will create two directories inside `$data_dir`: `metadata` and `shards`. 
 
 Along with the images and captions, this script will also download metadata, including `.parquet` files that contain the image urls, captions, and other potentially useful information such as the similarities between the images and captions given by trained OpenAI CLIP models.
 If the flag `--download_npz` is used, the script will also download the `.npz` files with features extracted by the trained OpenAI CLIP models for each sample.
 
-The data is stored in shards, which are `tar` files with the images and captions to be consumed by [webdataset](https://github.com/webdataset/webdataset/).
+We download the image data using [img2dataset](https://github.com/rom1504/img2dataset), which stores it as `.tar` shards with the images and captions to be consumed by [webdataset](https://github.com/webdataset/webdataset/).
 Once the download finishes, the data will be available at `$data_dir/shards`.
+
+To download only metadata, use the `--skip_shards` flag.
 
 The disk requirements for each scale are shown below.
 
