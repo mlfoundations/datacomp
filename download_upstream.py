@@ -18,8 +18,13 @@ def path_or_cloudpath(s):
         return CloudPath(s)
     return Path(s)
 
+def cleanup_dir(path):
+    assert isinstance(path, Path) or isinstance(path, CloudPath)
+    if isinstance(path, Path):
+        shutil.rmtree(path)
+    else:
+        path.rmtree()
 
-HF_REPO = 'mlfoundations/datacomp_pools'
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -46,8 +51,6 @@ if __name__ == '__main__':
     metadata_dir = args.metadata_dir
     if metadata_dir is None:
         metadata_dir = args.data_dir / 'metadata'
-    if metadata_dir.parts[-1] != args.scale:
-        metadata_dir = metadata_dir / f'{args.scale}'
 
     # Download the metadata files if needed.
     if args.overwrite_metadata or not metadata_dir.exists():
@@ -58,10 +61,11 @@ if __name__ == '__main__':
 
         print(f'Downloading metadata to {metadata_dir}...')
 
+        cache_dir = metadata_dir.parent / f'hf'
         hf_snapshot_args = dict(repo_id=hf_repo,
                                 allow_patterns=f'*.parquet',
                                 local_dir=metadata_dir,
-                                cache_dir=metadata_dir.parent / f'hf_{args.scale}',
+                                cache_dir=cache_dir,
                                 local_dir_use_symlinks=False,
                                 repo_type='dataset')
 
@@ -85,14 +89,15 @@ if __name__ == '__main__':
             for empty_dir in empty_dirs:
                 empty_dir.rmdir()
 
+        cleanup_dir(cache_dir)
+
         print('Done downloading metadata.')
     else:
         print(f'Skipping download of metadata because {metadata_dir} exists. Use --overwrite_metadata to force re-downloading.')
 
     if not args.skip_shards:
         # Download images.
-        metadata_dir = metadata_dir / f'{args.scale}'
-        shard_dir = args.data_dir / 'shards' / f'{args.scale}'
+        shard_dir = args.data_dir / 'shards'
         shard_dir.mkdir(parents=True, exist_ok=True)
         print(f'Downloading images to {shard_dir}')
 
