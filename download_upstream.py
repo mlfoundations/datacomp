@@ -41,6 +41,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    hf_repo = f'mlfoundations/datacomp_{args.scale}'
+
     metadata_dir = args.metadata_dir
     if metadata_dir is None:
         metadata_dir = args.data_dir / 'metadata'
@@ -56,21 +58,32 @@ if __name__ == '__main__':
 
         print(f'Downloading metadata to {metadata_dir}...')
 
-        hf_snapshot_args = dict(repo_id=HF_REPO,
-                                allow_patterns=f'{args.scale}/*.parquet',
-                                local_dir=metadata_dir.parent,
-                                cache_dir=metadata_dir.parent / 'hf',
+        hf_snapshot_args = dict(repo_id=hf_repo,
+                                allow_patterns=f'*.parquet',
+                                local_dir=metadata_dir,
+                                cache_dir=metadata_dir.parent / f'hf_{args.scale}',
                                 local_dir_use_symlinks=False,
                                 repo_type='dataset')
 
         if args.scale == 'xlarge':
-            hf_snapshot_args['allow_patterns'] = f'{args.scale}/*/*.parquet'
+            hf_snapshot_args['allow_patterns'] = f'*/*.parquet'
 
         snapshot_download(**hf_snapshot_args)
         if args.download_npz:
             hf_snapshot_args['allow_patterns'] = hf_snapshot_args['allow_patterns'].replace('.parquet', '.npz')
             print('\nDownloading npz files')
             snapshot_download(**hf_snapshot_args)
+
+        # Flatten directory structure in case of xlarge
+        if args.scale == "xlarge":
+            filenames = list(metadata_dir.rglob('*.parquet')) + list(metadata_dir.rglob('*.npz'))
+            for filename in filenames:
+                basename = filename.name
+                filename.replace(metadata_dir / basename)
+
+            empty_dirs = list(metadata_dir.glob('part_*'))
+            for empty_dir in empty_dirs:
+                empty_dir.rmdir()
 
         print('Done downloading metadata.')
     else:
