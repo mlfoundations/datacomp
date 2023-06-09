@@ -112,36 +112,36 @@ Here we provide command lines for the main filter baselines found in Table 3 of 
 ### No filtering
 Here we load all metadata `uids` without any additional filtering.
 ```
-python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/no_filter.npy --name no_filter
+python baselines.py --metadata_dir path/to/metadata --save_path path/to/no_filter.npy --name no_filter
 ```
 
 ### Basic filtering
 Simple checks on caption length, english being the detected caption language, image size, and image aspect ratio.
 ```
-python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/basic_filter.npy --name basic_filter
+python baselines.py --metadata_dir path/to/metadata --save_path path/to/basic_filter.npy --name basic_filter
 ```
 
 ### CLIP score filtering
 Retain the top k=0.3 fraction of the pool by L/14 CLIP score.
 ```
-python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/clip_score_l14_30_percent.npy --name clip_score --arch l14 --fraction 0.3
+python baselines.py --metadata_dir path/to/metadata --save_path path/to/clip_score_l14_30_percent.npy --name clip_score --arch l14 --fraction 0.3
 ```
 
 Retain all examples with B/32 CLIP score above 0.25.
 ```
-python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/clip_score_b32_25_threshold.npy --name clip_score --arch b32 --threshold 0.25
+python baselines.py --metadata_dir path/to/metadata --save_path path/to/clip_score_b32_25_threshold.npy --name clip_score --arch b32 --threshold 0.25
 ```
 
 ### LAION-2B filtering
 Reproduces the filtering strategy used to create the LAION-2B dataset: applies a B/32 CLIP score filter on image-text pairs, retaining samples with score above 0.28, and an English filter using the gcld3 model to detect language.
 ```
-python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/laion.npy --name laion2b
+python baselines.py --metadata_dir path/to/metadata --save_path path/to/laion.npy --name laion2b
 ```
 
 ### Text-based filtering
 A text filter captions that contain words from the ImageNet-21k synsets.
 ```
-python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/text_based.npy --name text_based
+python baselines.py --metadata_dir path/to/metadata --save_path path/to/text_based.npy --name text_based
 ```
 
 ### Image-based filtering
@@ -149,7 +149,7 @@ A image clustering based method that retains samples whose images have content c
 
 **Note**: this baseline uses GPU resources. By default it will try to use all GPUs. To control which GPUs are used, set the `CUDA_VISIBLE_DEVICES` environment variable.
 ```
-python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/image_based.npy --name image_based --image_based_scale small --batch_size 512
+python baselines.py --metadata_dir path/to/metadata --save_path path/to/image_based.npy --name image_based --image_based_scale small --batch_size 512
 ```
 
 **Note**: this baseline requires pre-computed image cluster centroids which will be downloaded automatically the first time you run it. 
@@ -160,7 +160,7 @@ Applies both the `CLIP score (L/14) with top 0.3 fraction` filter and an `Image-
 
 **Note**: this baseline uses GPU resources. By default it will try to use all GPUs. To control which GPUs are used, set the `CUDA_VISIBLE_DEVICES` environment variable.
 ```
-python baselines.py --metadata_dir path/to/metadata/<scale> --save_path path/to/image_based_intersect_clip_score_l14_30_percent.npy --name image_based_intersect_clip_score --image_based_scale small --batch_size 512 --arch l14 --fraction 0.3
+python baselines.py --metadata_dir path/to/metadata --save_path path/to/image_based_intersect_clip_score_l14_30_percent.npy --name image_based_intersect_clip_score --image_based_scale small --batch_size 512 --arch l14 --fraction 0.3
 ```
 
 ## Training
