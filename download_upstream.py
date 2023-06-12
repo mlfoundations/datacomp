@@ -29,7 +29,7 @@ def cleanup_dir(path):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--scale', type=str, required=False, choices=available_scales(simple_names=True)[1:], default='small', help='Competition scale.')
+    parser.add_argument('--scale', type=str, required=False, choices=available_scales(simple_names=True)[1:]+['datacomp_1b'], default='small', help='Competition scale.')
     parser.add_argument('--data_dir', type=path_or_cloudpath, required=True, help='Path to directory where the data (webdataset shards) will be stored.')
     parser.add_argument('--metadata_dir', type=path_or_cloudpath, default=None, help='Path to directory where the metadata will be stored. If not set, infer from data_dir.')
     parser.add_argument('--download_npz', help='If true, also download npz files.', action='store_true', default=False)
@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    hf_repo = f'mlfoundations/datacomp_{args.scale}'
+    hf_repo = f'mlfoundations/datacomp_{args.scale}' if args.scale != 'datacomp_1b' else 'mlfoundations/datacomp_1b'
 
     metadata_dir = args.metadata_dir
     if metadata_dir is None:
