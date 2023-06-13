@@ -70,7 +70,7 @@ The disk requirements for each scale are shown below.
 | `large` scale   |      300 GB         |     7.5TB       |    45 TB    |
 | `xlarge` scale  |        3 TB         |      75TB       |    450 TB   |
 
-### Download DataComp-1B
+### Downloading DataComp-1B
 
 The script `download_upstream.py` can be used to download the `DataComp-1B` dataset that we release as our best performing subset of the `xlarge` pool. To download this, use the following command:
 
