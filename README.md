@@ -86,7 +86,7 @@ By default, we also download the parquet files corresponding to the pools we pro
 
 ### Optimizing the download
 
-When using img2dataset, there are several other ways to optimize the download process, such as using multiple nodes in a distributed environment or setting up a DNS resolver to increase the success rate of images being downloaded. We refer the reader to the [img2dataset repository](https://github.com/rom1504/img2dataset) for further instructions on how to optimize the download process if so desired, as well as a resource in case of potential issues during the download.
+When using img2dataset, there are several ways to optimize the download process such as using multiple nodes in a distributed environment or setting up a DNS resolver to increase the success rate of images being downloaded. See the [img2dataset repository](https://github.com/rom1504/img2dataset) for further instructions on how to optimize the download process, as well as information on potential issues during the download.
 
 ## Selecting samples in the filtering track
 
