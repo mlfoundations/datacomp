@@ -84,6 +84,9 @@ The script `download_upstream.py` can also be used to download other image-text 
 Given parquet files containing the image urls and captions, you can use this script to download the images, by using the flag `--metadata_dir` to point to the directory where the parquet files are stored.
 By default, we also download the parquet files corresponding to the pools we provide, and this metadata is stored in a subfolder of `$data_dir`.
 
+### Optimizing the download
+
+When using img2dataset, there are several other ways to optimize the download process, such as using multiple nodes in a distributed environment or setting up a DNS resolver to increase the success rate of images being downloaded. We refer the reader to the [img2dataset repository](https://github.com/rom1504/img2dataset) for further instructions on how to optimize the download process if so desired, as well as a resource in case of potential issues during the download.
 
 ## Selecting samples in the filtering track
 
