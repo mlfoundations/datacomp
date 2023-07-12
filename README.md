@@ -39,7 +39,7 @@ If using cloud storage services (e.g. AWS S3), you'll need to install additional
 
 ## Downloading CommonPool
 
-To download, run the following command, replacing `$scale` specifies the competition scale (i.e. `small`, `medium`, `large` or `xlarge`) and `$data_dir` with the output directory where you want the data to be stored.
+To download, run the following command, replacing `$scale` with the competition scale (i.e. `small`, `medium`, `large` or `xlarge`) and `$data_dir` with the output directory where you want the data to be stored.
 
 ```python download_upstream.py --scale $scale --data_dir $data_dir```
 
