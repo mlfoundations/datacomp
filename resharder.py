@@ -16,29 +16,27 @@ import tempfile
 import threading
 import time
 import traceback
-
-from cloudpathlib.enums import FileCacheMode
 from dataclasses import dataclass
 from functools import lru_cache
-from multiprocessing.managers import NamespaceProxy, AcquirerProxy
+from multiprocessing.managers import AcquirerProxy, NamespaceProxy
 from pathlib import Path
-from typing import List, Optional, Callable, Union, Dict
+from typing import Callable, Dict, List, Optional, Union
 
 import cv2
 import numpy as np
-import simdjson
-import tqdm
-import webdataset as wds
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-
+import simdjson
+import tqdm
+import webdataset as wds
 from cloudpathlib import CloudPath
+from cloudpathlib.enums import FileCacheMode
 from img2dataset.blurrer import BoundingBoxBlurrer
 from webdataset.tariterators import (
     base_plus_ext,
-    url_opener,
     tar_file_expander,
+    url_opener,
     valid_sample,
 )
 

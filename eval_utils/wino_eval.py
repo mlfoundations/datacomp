@@ -2,19 +2,18 @@
 
 import os
 
+import datasets
+import numpy as np
+import open_clip
+import torch
+
 # from collections import Counter
 from sklearn.metrics import jaccard_score
-
-import numpy as np
 from tqdm import tqdm
 
-import torch
-import open_clip
-import datasets
+from .wds_eval import create_model
 
 # from transformers import CLIPModel, CLIPProcessor
-
-from .wds_eval import create_model
 
 
 class WinoDataset(torch.utils.data.Dataset):
@@ -22,7 +21,9 @@ class WinoDataset(torch.utils.data.Dataset):
         super().__init__()
         self._dataset = hf_dataset
         self.transform = (lambda x: x) if transform is None else transform
-        self.text_transform = (lambda x: x) if text_transform is None else text_transform
+        self.text_transform = (
+            (lambda x: x) if text_transform is None else text_transform
+        )
 
     def __len__(self):
         return len(self._dataset)
@@ -30,15 +31,15 @@ class WinoDataset(torch.utils.data.Dataset):
     def __getitem__(self, index: int):
         example = self._dataset[index]
         return (
-            self.transform(example['candidate_images']),
-            self.text_transform(example['cue']),
-            np.isin(example['candidates'], example['associations'])
+            self.transform(example["candidate_images"]),
+            self.text_transform(example["cue"]),
+            np.isin(example["candidates"], example["associations"]),
         )
 
 
 def evaluate_winogavil_dataset(
-        model_arch, model_path, data_root=None,
-        num_workers=4, batch_size=None):
+    model_arch, model_path, data_root=None, num_workers=4, batch_size=None
+):
     model, transform, device = create_model(model_arch, model_path)
     tokenizer = open_clip.get_tokenizer(model_arch)
 
@@ -47,15 +48,19 @@ def evaluate_winogavil_dataset(
         datasets.load_dataset(
             "nlphuji/winogavil",
             split="test",
-            cache_dir=os.path.join(data_root, "hf_cache") if data_root is not None else None
+            cache_dir=os.path.join(data_root, "hf_cache")
+            if data_root is not None
+            else None,
         ),
         transform=lambda imgs: torch.stack([transform(img) for img in imgs]),
-        text_transform=lambda text: tokenizer([get_clip_prompt(text)])
+        text_transform=lambda text: tokenizer([get_clip_prompt(text)]),
     )
     dataloader = torch.utils.data.DataLoader(
-        dataset, batch_size=1,
-        shuffle=False, num_workers=num_workers,
-        collate_fn=lambda batch: batch[0]
+        dataset,
+        batch_size=1,
+        shuffle=False,
+        num_workers=num_workers,
+        collate_fn=lambda batch: batch[0],
     )
 
     all_groups = []

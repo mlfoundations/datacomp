@@ -51,4 +51,3 @@ python evaluate.py \
     --output "$results"
 
 echo "finished evaluation"
-
