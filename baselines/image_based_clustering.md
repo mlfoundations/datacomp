@@ -1,6 +1,6 @@
 # Clustering
 
-Generates cluster centroids from the `image-based` baselines using k-means clustering. 
+Generates cluster centroids from the `image-based` baselines using k-means clustering.
 
 
 ## Installing dependencies
@@ -20,7 +20,7 @@ To run clustering for the `small` pool, run the following command:
 
 ```
 python image_based_clustering.py \
-        --metadata_dir path/to/metadata \ 
+        --metadata_dir path/to/metadata \
         --save_path path/to/output/centroids \
         --num_clusters 100000 \
         --sample_ratio -1.0 \
@@ -34,4 +34,3 @@ Explanation to several arguments:
 - `disable_caption_filtering`: whether to disable caption filtering to the dataset. Default is `False`
 
 On a machine with 8 GPUs and 26 CPUs (there are 26 parquet files for the `small` pool), the clustering process takes about 10 minutes.
-

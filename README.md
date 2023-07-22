@@ -51,7 +51,7 @@ There are four scales in our competition:
 - `xlarge`: 12.8B pool size, 12.8B examples seen
 
 
-The script will create two directories inside `$data_dir`: `metadata` and `shards`. 
+The script will create two directories inside `$data_dir`: `metadata` and `shards`.
 
 Along with the images and captions, this script will also download metadata, including `.parquet` files that contain the image urls, captions, and other potentially useful information such as the similarities between the images and captions given by trained OpenAI CLIP models.
 If the flag `--download_npz` is used, the script will also download the `.npz` files with features extracted by the trained OpenAI CLIP models for each sample.
@@ -161,7 +161,7 @@ A image clustering based method that retains samples whose images have content c
 python baselines.py --metadata_dir path/to/metadata --save_path path/to/image_based.npy --name image_based --image_based_scale small --batch_size 512
 ```
 
-**Note**: this baseline requires pre-computed image cluster centroids which will be downloaded automatically the first time you run it. 
+**Note**: this baseline requires pre-computed image cluster centroids which will be downloaded automatically the first time you run it.
 If you want to generate the centroids yourself, please see `baselines/image_based_clustering.md` for instructions.
 
 ### Intersection of image-based and CLIP score filtering
@@ -239,7 +239,7 @@ We also highly encourage participants to also upload the checkpoints for their t
 
 ## Checkpoints
 
-We release the checkpoints for our main baselines as part of [OpenCLIP](https://github.com/mlfoundations/open_clip). More details can be found at https://github.com/mlfoundations/open_clip/blob/main/docs/datacomp_models.md. 
+We release the checkpoints for our main baselines as part of [OpenCLIP](https://github.com/mlfoundations/open_clip). More details can be found at https://github.com/mlfoundations/open_clip/blob/main/docs/datacomp_models.md.
 
 ## Citation
 

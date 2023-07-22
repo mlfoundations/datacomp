@@ -8,7 +8,7 @@ import argparse
 import multiprocessing as mp
 from functools import partial
 from multiprocessing import Pool
-from typing import Any, Tuple, List
+from typing import Any, List, Tuple
 
 import faiss
 import fasttext
@@ -18,17 +18,14 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 
-from baselines.utils import random_seed, download
 from baselines.apply_filter import caption_filter
+from baselines.utils import download, random_seed
 
 torch.backends.cudnn.benchmark = True
 
 
 def train_kmeans(
-        embeddings: np.ndarray,
-        num_clusters: int,
-        num_gpus: int,
-        seed: int = 0
+    embeddings: np.ndarray, num_clusters: int, num_gpus: int, seed: int = 0
 ) -> torch.Tensor:
     """train kmeans on embeddings
 
@@ -59,7 +56,9 @@ def train_kmeans(
     if num_gpus == 1:
         index = faiss.GpuIndexFlatL2(res[0], d, flat_config[0])
     else:
-        indexes = [faiss.GpuIndexFlatL2(res[i], d, flat_config[i]) for i in range(num_gpus)]
+        indexes = [
+            faiss.GpuIndexFlatL2(res[i], d, flat_config[i]) for i in range(num_gpus)
+        ]
         index = faiss.IndexReplicas()
         for sub_index in indexes:
             index.addIndex(sub_index)
@@ -72,10 +71,10 @@ def train_kmeans(
 
 
 def load_embedding_helper(
-        fs_root: Tuple[Any, str],
-        key: str = "l14_img",
-        caption_filtering: bool = False,
-        sample_ratio: float = -1.0
+    fs_root: Tuple[Any, str],
+    key: str = "l14_img",
+    caption_filtering: bool = False,
+    sample_ratio: float = -1.0,
 ) -> np.ndarray:
     """worker function to load embeddings
 
@@ -89,8 +88,12 @@ def load_embedding_helper(
     fs, path_root = fs_root
     embed = np.load(fs.open(f"{path_root}.npz"))[key]
     if caption_filtering:
-        lang_detect_model = fasttext.load_model(download("fasttext", "~/.cache/fasttext"))
-        df = pd.read_parquet(f"{path_root}.parquet", columns=["uid", "text"], filesystem=fs)
+        lang_detect_model = fasttext.load_model(
+            download("fasttext", "~/.cache/fasttext")
+        )
+        df = pd.read_parquet(
+            f"{path_root}.parquet", columns=["uid", "text"], filesystem=fs
+        )
         mask = caption_filter(df, lang_detect_model)
         embed = embed[mask]
     if sample_ratio > 0:
@@ -101,11 +104,11 @@ def load_embedding_helper(
 
 
 def load_embedding(
-        paths: List[Tuple[Any, str]],
-        n_workers: int = 10,
-        key: str = "l14_img",
-        caption_filtering: bool = False,
-        sample_ratio: float = -1.0
+    paths: List[Tuple[Any, str]],
+    n_workers: int = 10,
+    key: str = "l14_img",
+    caption_filtering: bool = False,
+    sample_ratio: float = -1.0,
 ) -> np.ndarray:
     """worker function to load embeddings
 
@@ -128,7 +131,9 @@ def load_embedding(
     with Pool(n_workers) as pool:
         embeds = [
             res
-            for res in tqdm(pool.imap(worker, paths), total=len(paths))  # imap so that it can be reproduced
+            for res in tqdm(
+                pool.imap(worker, paths), total=len(paths)
+            )  # imap so that it can be reproduced
             if len(res) > 0
         ]
     return np.vstack(embeds)
@@ -147,10 +152,10 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--embedding_key",
-        default='l14_img',
+        default="l14_img",
         type=str,
-        choices=['l14_img', 'b32_img'],
-        help="precomputed embeddings used for clustering"
+        choices=["l14_img", "b32_img"],
+        help="precomputed embeddings used for clustering",
     )
     parser.add_argument(
         "--sample_ratio",
@@ -202,5 +207,7 @@ if __name__ == "__main__":
 
     print(f"start clustering: num_clusters = {num_clusters}, num_gpus = {num_gpus}")
     embeddings = embeddings.astype(np.float32)
-    centroids = train_kmeans(embeddings, num_clusters, num_gpus=num_gpus, seed=args.seed)
+    centroids = train_kmeans(
+        embeddings, num_clusters, num_gpus=num_gpus, seed=args.seed
+    )
     torch.save(centroids, args.save_path, pickle_protocol=4)

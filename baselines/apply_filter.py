@@ -1,8 +1,10 @@
-import os
-from functools import partial
 import multiprocessing as mp
+import os
+import time
+from functools import partial
 from multiprocessing import Pool
-from typing import Any, Set, Tuple, List, Union
+from queue import Empty
+from typing import Any, List, Set, Tuple, Union
 
 import fasttext
 import fsspec
@@ -13,8 +15,6 @@ import pandas as pd
 import torch
 from nltk.corpus import wordnet
 from tqdm import tqdm
-import time
-from queue import Empty
 
 from baselines.utils import download, worker_threadpool
 
