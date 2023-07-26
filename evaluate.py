@@ -52,6 +52,7 @@ def submit_to_firebase(training_info, args, results):
         "hf_username": args.hf_username,
         "hf_repo_name": args.hf_repo_name,
         "timestamp": timestamp,
+        "track": args.track,
     }
     for dataset_name, dataset_results in results.items():
         if "main_metric" in dataset_results["metrics"]:
@@ -91,7 +92,7 @@ def submit_to_slack(train_info, args, results):
     imagenet_acc = results["ImageNet 1k"]["metrics"]["acc1"]
 
     message = (
-        f"New submission ({scale} scale): {args.method_name}. "
+        f"New submission ({scale} scale, {args.track} track): {args.method_name}. "
         f"ImageNet accuracy: {imagenet_acc:.3f}. Average performance {avg_acc:.3f}. "
         f"From {args.author} ({args.email})."
     )
