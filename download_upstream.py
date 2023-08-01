@@ -212,6 +212,7 @@ if __name__ == "__main__":
             save_additional_columns=["uid"],
             number_sample_per_shard=10000,
             oom_shard_count=8,
+            retries=2
         )
     else:
         print(f"Skipping image data download.")
