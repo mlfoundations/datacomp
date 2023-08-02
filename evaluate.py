@@ -53,6 +53,7 @@ def submit_to_firebase(training_info, args, results):
         "hf_repo_name": args.hf_repo_name,
         "timestamp": timestamp,
         "track": args.track,
+        "writeup": args.writeup,
     }
     for dataset_name, dataset_results in results.items():
         if "main_metric" in dataset_results["metrics"]:
@@ -97,7 +98,9 @@ def submit_to_slack(train_info, args, results):
         f"From {args.author} ({args.email})."
     )
     if not args.skip_hf:
-        message = message[:-1] + f", more details at {hf_url}"
+        message = message[:-1] + f", more details at {hf_url}."
+    if args.writeup:
+        message += f' Writeup: {args.writeup}'
 
     root = "hooks.slack.com"
     part1 = "T01AEJ66KHV"
@@ -209,6 +212,12 @@ if __name__ == "__main__":
         "--author",
         type=str,
         help="Name or names of the authors of this submission. This *will* be shared publicly.",
+        default=None,
+    )
+    parser_submit.add_argument(
+        "--writeup",
+        type=str,
+        help="Optional link for a paper or blog containing details for the method. This *will* be shared publicly if the flag is used.",
         default=None,
     )
     parser_submit.add_argument(
