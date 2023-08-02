@@ -229,7 +229,16 @@ The submission script will upload files to Hugging Face Hub (like the model chec
 Once you're ready to submit, run the evaluation script with some extra flags, for example:
 
 ```
-python evaluate.py --track=filtering --train_output_dir=$train_output_dir --submit --method_name="your_awesome_method_name" --samples=$sample_files --author="your_name" --email=your@email.com --hf_username=$hf_username --hf_repo_name=$hf_repo_name
+python evaluate.py \
+    --track=filtering \
+    --train_output_dir=$train_output_dir \
+    --samples=$sample_files \
+    --submit \
+    --method_name="[your method name, please be descriptive!]" \
+    --author="[your name]" \
+    --email="[your@email.com]" \
+    --hf_username=$hf_username \
+    --hf_repo_name=$hf_repo_name
 ```
 
 Please note that the name of your method and the authors (and no other information) will be made publicly available in our leaderboard.
