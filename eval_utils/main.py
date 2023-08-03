@@ -9,10 +9,19 @@ from .retr_eval import evaluate_retrieval_dataset
 from .wds_eval import evaluate_webdataset
 from .wilds_eval import evaluate_wilds_dataset
 from .wino_eval import evaluate_winogavil_dataset
+from .vqa_eval import evaluate_vqa_dataset
 
 
 def evaluate_model(task_key, train_info, data_root, dataset_size, batch_size=64):
-    if task_key.startswith("retrieval/"):
+    if task_key.startswith('vqa/'):
+        metrics = evaluate_vqa_dataset(
+            task_key,
+            train_info["scale_config"]["model"],
+            train_info["checkpoint"],
+            data_root=data_root,
+            batch_size=batch_size,
+        )
+    elif task_key.startswith("retrieval/"):
         metrics = evaluate_retrieval_dataset(
             task_key,
             train_info["scale_config"]["model"],
