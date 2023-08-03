@@ -41,11 +41,10 @@ def submit_to_firebase(training_info, args, results):
     data = {
         "scale": training_info["scale"],
         "model": training_info["scale_config"]["model"],
-        "dataset_size": args.dataset_size,
+        "dataset_size": args.dataset_size or training_info["scale_config"]["train_num_samples"],
         "checkpoint": str(training_info["checkpoint"]),
         "batch_size": training_info["scale_config"]["batch_size"],
         "learning_rate": training_info["scale_config"]["learning_rate"],
-        "train_num_samples": training_info["scale_config"]["train_num_samples"],
         "method_name": args.method_name,
         "author": args.author,
         "email": args.email,
