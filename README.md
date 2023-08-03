@@ -242,7 +242,10 @@ python evaluate.py \
     --hf_repo_name=$hf_repo_name
 ```
 
-Please note that the name of your method and the authors (and no other information) will be made publicly available in our leaderboard. Be sure to replace all fields with the correct informtion. 
+Please note that the name of your method and the authors (and no other information) will be made publicly available in our leaderboard. Be sure to replace all fields with the correct information. 
+
+If you have a paper or blog post and would like that to be linked on our leaderboard, you can add that information with the `--writeup` flag. 
+
 
 **Important:** We highly encourage users to specify the samples used to train the model using the `--samples` flag. This can be either file(s) containing the uids of samples from our pool, and/or other files specifying the urls and captions for images outside our pool. You can specify multiple files using the `::` separator, for instance `--samples=/path/to/sample_ids.npy::/path/to/custom_data.parquet`.
 We also highly encourage participants to also upload the checkpoints for their trained models using the `--upload-checkpoint` flag.
