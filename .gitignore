@@ -6,6 +6,7 @@ metadata_cache/*
 checkpoints/*
 out/
 logs/
+tmp*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

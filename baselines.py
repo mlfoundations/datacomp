@@ -14,6 +14,9 @@ BASELINES = {
     "image_based_intersect_clip_score",
     "clip_score",
     "laion2b",
+    "detector_class",
+    "detector_count",
+    "detector_position",
 }
 
 ARCH = {
@@ -32,6 +35,15 @@ CLUSTER_CENTROID_SCALES = [
 def check_args(args):
     if args.name not in BASELINES:
         raise ValueError(f"--name must be in: {BASELINES}")
+
+    if args.name == "laion2b" or args.name.startswith("detector_"):
+        if (
+            args.fraction is not None
+            or args.threshold is not None
+            or args.arch is not None
+            or args.image_based_scale is not None
+        ):
+            raise ValueError(f"{args.name} does not support clip_score or image_based flags")
 
     if args.name == "laion2b":
         if (

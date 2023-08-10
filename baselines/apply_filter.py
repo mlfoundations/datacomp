@@ -16,7 +16,7 @@ import torch
 from nltk.corpus import wordnet
 from tqdm import tqdm
 
-from baselines.utils import download, worker_threadpool
+from baselines.utils import download, worker_threadpool, worker_list_threadpool
 
 fasttext.FastText.eprint = lambda x: None
 
@@ -634,6 +634,78 @@ def load_uids_with_image_filter(
     return np.concatenate(all_uids)
 
 
+def load_uids_with_detector_class_helper(
+    fs_url: Tuple[Any, str], threshold=0.5
+) -> np.ndarray:
+    """helper for text based filter on a single parquet
+
+    Args:
+        fs_url (str): pair of fsspec file system and parquet url
+        entity_set (Set): set of synset keys we are referencing against
+
+    Returns:
+        np.ndarray: array of uids
+    """
+    fs, url = fs_url
+
+    df = pd.read_parquet(url, columns=["uid", "classes", "scores"], filesystem=fs)
+
+    def get_sublist(c, s):
+        s_list = [e > threshold for e in eval(s)]
+        c_list = eval(c)
+        return set([c_list[i] for i in range(len(s_list)) if s_list[i]])
+
+    sets = [[] for _ in range(1204)]
+
+    def map_classes(uid, filtered_class):
+        if len(filtered_class) == 0:
+            sets[-1].append(uid)
+        else:
+            for f in filtered_class:
+                sets[f].append(uid)
+
+    df['classes'] = df.apply(lambda x: get_sublist(x.classes, x.scores), axis=1)
+    df.apply(lambda x: map_classes(x.uid, x.classes), axis=1)
+
+    # np.array(
+    #     [
+    #         (int(uid[:16], 16), int(uid[16:32], 16))
+    #         for uid
+    #     ],
+    #     np.dtype("u8,u8"),
+    # )
+    for i in range(len(sets)):
+        sets[i] = np.array(
+            [
+                (int(uid[:16], 16), int(uid[16:32], 16))
+                for uid in sets[i]
+            ],
+            np.dtype("u8,u8"),
+        )
+
+    return sets
+
+
+def load_uids_with_detector(detector_baseline_name: str, metadata_dir_path: str, num_workers: int) -> np.ndarray:
+
+    fs, url = fsspec.core.url_to_fs(metadata_dir_path)
+    parquet_paths = [(fs, str(x)) for x in fs.ls(url) if ".parquet" in x]
+
+    if detector_baseline_name == "detector_class":
+        return worker_list_threadpool(
+            load_uids_with_detector_class_helper, np.concatenate, parquet_paths, num_workers
+        )
+    # elif detector_baseline_name == "detector_count":
+    #     return worker_list_threadpool(
+    #         load_uids_with_detector_counr_helper, np.concatenate, parquet_paths, num_workers
+    #     )
+    # elif detector_baseline_name == "detector_position":
+    #     return worker_list_threadpool(
+    #         load_uids_with_detector_position_helper, np.concatenate, parquet_paths, num_workers
+    #     )
+    else:
+        raise ValueError(f"Unknown detector_baseline_name: {detector_baseline_name}")
+
 def apply_filter(args: Any) -> None:
     """function to route the args to the proper baseline function
 
@@ -702,6 +774,22 @@ def apply_filter(args: Any) -> None:
             args.num_workers,
             gcld3_en_filter=True,
         )
+    elif args.name.startswith("detector_"):
+        # special case where we are creating many output indices
+        indices = load_uids_with_detector(args.name, args.metadata_dir, args.num_workers)
+        for i in range(len(indices)):
+            if not os.path.exists(os.path.join(args.save_path, args.name)):
+                os.mkdir(os.path.join(args.save_path, args.name))
+
+            uids = indices[i]
+            print(f"sorting {len(uids)} uids")
+            uids.sort()
+            save_path = os.path.join(args.save_path, args.name, f"{i}.npy")
+            print(f"saving {save_path} with {len(uids)} entries")
+            np.save(save_path, uids)
+
+        return
+
     else:
         raise ValueError(f"Unknown args.name argument: {args.name}")
 
