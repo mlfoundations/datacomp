@@ -123,6 +123,26 @@ if __name__ == "__main__":
         default="webdataset",
         help="Output format used by img2dataset when downloading images.",
     )
+    parser.add_argument(
+        "--retries",
+        type=int,
+        required=False,
+        default=2,
+        help="Number of time a download should be retried (default 2)",
+    )
+    parser.add_argument(
+        "--enable_wandb",
+        action="store_true",
+        default=False,
+        help="Whether to enable wandb logging (default False)",
+    )
+    parser.add_argument(
+        "--wandb_project",
+        type=str,
+        required=False,
+        default="datacomp",
+        help="Name of W&B project used (default datacomp)",
+    )
 
     args = parser.parse_args()
 
@@ -212,7 +232,9 @@ if __name__ == "__main__":
             save_additional_columns=["uid"],
             number_sample_per_shard=10000,
             oom_shard_count=8,
-            retries=2
+            retries=args.retries,
+            enable_wandb=args.enable_wandb,
+            wandb_project=args.wandb_project,
         )
     else:
         print(f"Skipping image data download.")
