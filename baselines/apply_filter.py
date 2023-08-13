@@ -867,6 +867,27 @@ def apply_filter(args: Any) -> None:
         # special case where we are creating many output indices
         indices = load_uids_with_detector(args.name, args.metadata_dir, args.num_workers)
 
+        if args.combine:
+            if type(indices) is dict:
+                indices = [indices[k] for k in indices]
+
+            checker = np.array((0, 0), np.dtype("u8,u8"))
+            for a in indices:
+                assert checker not in a
+
+            TOTAL = 128_000_000 # FIXME: dont hard code this but rather infer this or ask user to provide this
+            buckets = len(indices)
+            samp_per_bucket = int(TOTAL/buckets)
+            indices = [np.resize(var, samp_per_bucket) for var in indices if var.shape[0] > 0]
+
+            for a in indices:
+                assert checker not in a
+
+            indices = [np.concatenate(indices), ]
+
+            for a in indices:
+                assert checker not in a
+
         if not os.path.exists(os.path.join(args.save_path, args.name)):
             os.mkdir(os.path.join(args.save_path, args.name))
 

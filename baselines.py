@@ -177,6 +177,14 @@ if __name__ == "__main__":
         default=None,
     )
 
+    parser.add_argument(
+        "--combine",
+        action="store_true",
+        required=False,
+        help="for detector baselines, combine idx files into a balanced index, NOTE: currently hardcoded for medium scale and LVIS classes",
+        default=False,
+    )
+
     args = parser.parse_args()
 
     # all error checking happens here and apply_filter assumes correct input

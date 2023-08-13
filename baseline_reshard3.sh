@@ -18,14 +18,14 @@ conda activate datacomp  # install according to tng/tools/environment.yml
 cd /admin/home-${USER}/datacomp
 
 download_dir="s3://datanet-west/datanet_100M_pool-baselines/basic/all/seed_1/reshards_n1/0/"
-output_dir="s3://dcnlp-hub/datacomp_rebuttal_reshard/all/detector_count/10"
-subset_file="tmp2/detector_count/10.npy"
+output_dir="s3://dcnlp-hub/datacomp_rebuttal_reshard/all/detector_class_unified/"
+subset_file="tmp2/detector_class/0.npy"
 
 python resharder.py -i $download_dir -o $output_dir -s $subset_file
 
-# python baselines.py --metadata_dir s3://dcnlp-hub/datacomp_rebuttal_metadata --save_path tmp2 --name detector_class --num_workers 128
+# python baselines.py --metadata_dir s3://dcnlp-hub/datacomp_rebuttal_metadata2/ --save_path tmp2 --name detector_class --num_workers 128 --combine
 # sleep 3
-# python baselines.py --metadata_dir s3://dcnlp-hub/datacomp_rebuttal_metadata --save_path tmp2 --name detector_count --num_workers 128
+# python baselines.py --metadata_dir s3://dcnlp-hub/datacomp_rebuttal_metadata2/ --save_path tmp2 --name detector_count --num_workers 128 --combine
 # sleep 3
-# python baselines.py --metadata_dir s3://dcnlp-hub/datacomp_rebuttal_metadata --save_path tmp2 --name detector_position --num_workers 128
+# python baselines.py --metadata_dir s3://dcnlp-hub/datacomp_rebuttal_metadata2/ --save_path tmp2 --name detector_position --num_workers 128 --combine
 # sleep 3
