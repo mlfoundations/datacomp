@@ -7,6 +7,8 @@ checkpoints/*
 out/
 logs/
 tmp*
+*.err
+*.out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

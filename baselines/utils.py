@@ -201,3 +201,35 @@ def worker_list_threadpool(
                 uids[i].append(e)
 
     return [concat_fn(uu) for uu in uids]
+
+def worker_dict_threadpool(
+    worker_fn: Any, concat_fn: Any, paths: List[str], n_workers: int
+) -> np.ndarray:
+    """get filtered uids
+
+    Args:
+        worker_fn (Any): function to map over the pool
+        concat_fn (Any): function to use to collate the results
+        paths (List[str]): metadata paths to process
+        n_workers (int): number of cpu workers
+
+    Returns:
+        np.ndarray: filtered uids
+    """
+    print("creating thread pool for processing")
+    uids = {}
+
+    with Pool(n_workers) as pool:
+        for u in tqdm(
+            pool.imap_unordered(worker_fn, paths),
+            total=len(paths),
+        ):
+            for k in u:
+                if k not in uids:
+                    uids[k] = []
+                uids[k].append(u[k])
+
+    for k in uids:
+        uids[k] = concat_fn(uids[k])
+
+    return uids

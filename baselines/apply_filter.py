@@ -5,6 +5,7 @@ from functools import partial
 from multiprocessing import Pool
 from queue import Empty
 from typing import Any, List, Set, Tuple, Union
+import math
 
 import fasttext
 import fsspec
@@ -16,7 +17,7 @@ import torch
 from nltk.corpus import wordnet
 from tqdm import tqdm
 
-from baselines.utils import download, worker_threadpool, worker_list_threadpool
+from baselines.utils import download, worker_threadpool, worker_list_threadpool, worker_dict_threadpool
 
 fasttext.FastText.eprint = lambda x: None
 
@@ -634,6 +635,54 @@ def load_uids_with_image_filter(
     return np.concatenate(all_uids)
 
 
+def load_uids_with_detector_position_helper(
+    fs_url: Tuple[Any, str], threshold=0.5, space_locs=5
+) -> np.ndarray:
+    """helper for text based filter on a single parquet
+
+    Args:
+        fs_url (str): pair of fsspec file system and parquet url
+        entity_set (Set): set of synset keys we are referencing against
+
+    Returns:
+        np.ndarray: array of uids
+    """
+    fs, url = fs_url
+
+    df = pd.read_parquet(url, columns=["uid", "boxes", "scores", "original_width", "original_height"], filesystem=fs)
+
+    def filter_boxes(b, s):
+        s_list = [e > threshold for e in eval(s)]
+        b_list = eval(b)
+        return [b_list[i] for i in range(len(s_list)) if s_list[i]]
+
+    sets = [[] for _ in range(space_locs**2 + 1)]
+
+    def map_space(uid, boxes, w, h):
+
+        if len(boxes) == 0:
+            sets[-1].append(uid)
+        else:
+            for box in boxes:
+                center_x = (box[2] + box[0])/2
+                center_y = (box[3] + box[1])/2
+                i = math.floor(center_x/w * space_locs) + math.floor(center_y/h * space_locs) * space_locs
+                sets[i].append(uid)
+
+    df['boxes'] = df.apply(lambda x: filter_boxes(x.boxes, x.scores), axis=1)
+    df.apply(lambda x: map_space(x.uid, x.boxes, x.original_width, x.original_height), axis=1)
+
+    for i in range(len(sets)):
+        sets[i] = np.array(
+            [
+                (int(uid[:16], 16), int(uid[16:32], 16))
+                for uid in sets[i]
+            ],
+            np.dtype("u8,u8"),
+        )
+
+    return sets
+
 def load_uids_with_detector_class_helper(
     fs_url: Tuple[Any, str], threshold=0.5
 ) -> np.ndarray:
@@ -650,7 +699,7 @@ def load_uids_with_detector_class_helper(
 
     df = pd.read_parquet(url, columns=["uid", "classes", "scores"], filesystem=fs)
 
-    def get_sublist(c, s):
+    def get_class_set(c, s):
         s_list = [e > threshold for e in eval(s)]
         c_list = eval(c)
         return set([c_list[i] for i in range(len(s_list)) if s_list[i]])
@@ -664,16 +713,9 @@ def load_uids_with_detector_class_helper(
             for f in filtered_class:
                 sets[f].append(uid)
 
-    df['classes'] = df.apply(lambda x: get_sublist(x.classes, x.scores), axis=1)
+    df['classes'] = df.apply(lambda x: get_class_set(x.classes, x.scores), axis=1)
     df.apply(lambda x: map_classes(x.uid, x.classes), axis=1)
 
-    # np.array(
-    #     [
-    #         (int(uid[:16], 16), int(uid[16:32], 16))
-    #         for uid
-    #     ],
-    #     np.dtype("u8,u8"),
-    # )
     for i in range(len(sets)):
         sets[i] = np.array(
             [
@@ -685,6 +727,53 @@ def load_uids_with_detector_class_helper(
 
     return sets
 
+def load_uids_with_detector_count_helper(
+    fs_url: Tuple[Any, str], threshold=0.5, max_count=10
+) -> np.ndarray:
+    """helper for text based filter on a single parquet
+
+    Args:
+        fs_url (str): pair of fsspec file system and parquet url
+        entity_set (Set): set of synset keys we are referencing against
+
+    Returns:
+        np.ndarray: array of uids
+    """
+    fs, url = fs_url
+
+    df = pd.read_parquet(url, columns=["uid", "classes", "scores"], filesystem=fs)
+
+    def get_class_list(c, s):
+        s_list = [e > threshold for e in eval(s)]
+        c_list = eval(c)
+        return [c_list[i] for i in range(len(s_list)) if s_list[i]]
+
+    sets = {}
+
+    def map_classes(uid, filtered_class):
+        count = len(filtered_class)
+
+        if count > max_count:
+            count = -1
+
+        if count not in sets:
+            sets[count] = []
+
+        sets[count].append(uid)
+
+    df['classes'] = df.apply(lambda x: get_class_list(x.classes, x.scores), axis=1)
+    df.apply(lambda x: map_classes(x.uid, x.classes), axis=1)
+
+    for k in sets:
+        sets[k] = np.array(
+            [
+                (int(uid[:16], 16), int(uid[16:32], 16))
+                for uid in sets[k]
+            ],
+            np.dtype("u8,u8"),
+        )
+
+    return sets
 
 def load_uids_with_detector(detector_baseline_name: str, metadata_dir_path: str, num_workers: int) -> np.ndarray:
 
@@ -695,14 +784,14 @@ def load_uids_with_detector(detector_baseline_name: str, metadata_dir_path: str,
         return worker_list_threadpool(
             load_uids_with_detector_class_helper, np.concatenate, parquet_paths, num_workers
         )
-    # elif detector_baseline_name == "detector_count":
-    #     return worker_list_threadpool(
-    #         load_uids_with_detector_counr_helper, np.concatenate, parquet_paths, num_workers
-    #     )
-    # elif detector_baseline_name == "detector_position":
-    #     return worker_list_threadpool(
-    #         load_uids_with_detector_position_helper, np.concatenate, parquet_paths, num_workers
-    #     )
+    elif detector_baseline_name == "detector_count":
+        return worker_dict_threadpool(
+            load_uids_with_detector_count_helper, np.concatenate, parquet_paths, num_workers
+        )
+    elif detector_baseline_name == "detector_position":
+        return worker_list_threadpool(
+            load_uids_with_detector_position_helper, np.concatenate, parquet_paths, num_workers
+        )
     else:
         raise ValueError(f"Unknown detector_baseline_name: {detector_baseline_name}")
 
@@ -777,16 +866,42 @@ def apply_filter(args: Any) -> None:
     elif args.name.startswith("detector_"):
         # special case where we are creating many output indices
         indices = load_uids_with_detector(args.name, args.metadata_dir, args.num_workers)
-        for i in range(len(indices)):
-            if not os.path.exists(os.path.join(args.save_path, args.name)):
-                os.mkdir(os.path.join(args.save_path, args.name))
 
-            uids = indices[i]
-            print(f"sorting {len(uids)} uids")
-            uids.sort()
-            save_path = os.path.join(args.save_path, args.name, f"{i}.npy")
-            print(f"saving {save_path} with {len(uids)} entries")
-            np.save(save_path, uids)
+        if not os.path.exists(os.path.join(args.save_path, args.name)):
+            os.mkdir(os.path.join(args.save_path, args.name))
+
+        if type(indices) is dict:
+            # xs = []
+            # ys = []
+            # import matplotlib.pyplot as plt
+
+            keys = list(indices.keys())
+            keys.sort()
+            for k in keys:
+
+                # xs.append(k)
+                # ys.append(indices[k].shape[0])
+
+                uids = indices[k]
+
+                print(f"sorting {len(uids)} uids")
+                uids.sort()
+                save_path = os.path.join(args.save_path, args.name, f"{k}.npy")
+                print(f"saving {save_path} with {len(uids)} entries")
+                np.save(save_path, uids)
+
+            # plt.yscale("log")
+            # plt.plot(xs, ys)
+            # plt.savefig("tmp.png")
+            # plt.savefig("tmp.pdf")
+        else:
+            for i in range(len(indices)):
+                uids = indices[i]
+                print(f"sorting {len(uids)} uids")
+                uids.sort()
+                save_path = os.path.join(args.save_path, args.name, f"{i}.npy")
+                print(f"saving {save_path} with {len(uids)} entries")
+                np.save(save_path, uids)
 
         return
 
