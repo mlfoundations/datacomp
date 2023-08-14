@@ -187,6 +187,8 @@ A sample script for training with SLURM with is provided at `tools/slurm_train.s
 
 The hyper-parameters used for training are fixed for a given scale. For the `small` and `medium` scales we use ViT-B/32 models, for the `large` scale, ViT-B/16, and for the `xlarge` scale, ViT-L/14. The number of samples seen during training is determined by the scale, and is equal to the size of the corresponding pool we provide. Additional details on hyper-parameters can be found in the paper.
 
+**You should not modify any hyper-parameters for training, including batch size.** Any changes may affect accuracy and make results incomparable.
+
 #### Note on variance across runs
 
 We observed small (but non-zero) variance in performance when changing random seeds, seeing differences in accuracy typically at the range of 0.2 percentage points on ImageNet and up to 0.006 on average.
