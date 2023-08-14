@@ -34,7 +34,10 @@ SEED=0
 OUTPUT_DIR="/path/to/output/dir"
 NUM_CHECKPOINTS=8
 EXP_NAME="datacomp-scale-${SCALE}-seed${SEED}"
-PRECISION="amp"  # You can also use amp_bfloat16 if supported by your hardware.
+PRECISION="amp"  # We recommend using amp_bfloat16 if supported by your hardware.
+if [ "$SCALE" == "xlarge" ]; then
+    PRECISION="amp_bfloat16" # amp results in a significant performance drop at xlarge scale
+fi
 
 # Change comment as needed
 srun --comment "<comment>" --cpu_bind=v --accel-bind=gn python train.py \
