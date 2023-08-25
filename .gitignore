@@ -1,4 +1,5 @@
 wandb/
+test_data/
 baselines/results/
 pool_v*
 .vscode/*

@@ -63,7 +63,7 @@ def submit_to_firebase(training_info, args, results):
     hf_hub_username = data["hf_username"]
     hf_hub_dirname = data["hf_repo_name"]
 
-    key = f"{hf_hub_username}__{hf_hub_dirname}__{timestamp}"
+    key = f"{hf_hub_username}__{hf_hub_dirname}__{timestamp}".replace(".", "_")
 
     url = f"https://laion-tng-default-rtdb.firebaseio.com/{key}.json"
 
