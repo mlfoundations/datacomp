@@ -49,5 +49,4 @@ srun --comment "<comment>" --cpu_bind=v --accel-bind=gn python train.py \
     --num_checkpoints ${NUM_CHECKPOINTS} \
     --seed ${SEED} \
     --report_to_wandb \
-    --dataset_resampled \
     --accum_freq 1
