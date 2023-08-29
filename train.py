@@ -178,12 +178,6 @@ if __name__ == "__main__":
     )
     parser.add_argument("--seed", type=int, default=0, help="Random seed.")
     parser.add_argument(
-        "--dataset_resampled",
-        default=False,
-        action="store_true",
-        help="Whether to use sampling with replacement for webdataset shard selection.",
-    )
-    parser.add_argument(
         "--report_to_wandb",
         default=False,
         action="store_true",
@@ -285,8 +279,7 @@ if __name__ == "__main__":
         "--resume",
         f"{args.resume}",
     ]
-    if args.dataset_resampled:
-        main_args.append("--dataset-resampled")
+    main_args.append("--dataset-resampled")
     if args.report_to_wandb:
         main_args.extend(
             [
