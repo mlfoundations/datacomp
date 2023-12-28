@@ -53,7 +53,7 @@ There are four scales in our competition:
 
 The script will create two directories inside `$data_dir`: `metadata` and `shards`.
 
-Along with the images and captions, this script will also download metadata, including `.parquet` files that contain the image urls, captions, and other potentially useful information such as the similarities between the images and captions given by trained OpenAI CLIP models.
+Along with the images and captions, this script will also download metadata, including `.parquet` files that contain the image urls, captions, and other potentially useful information such as the similarities between the images and captions given by trained OpenAI CLIP models. For more information on metadata see the [metadata](#metadata) section.
 If the flag `--download_npz` is used, the script will also download the `.npz` files with features extracted by the trained OpenAI CLIP models for each sample.
 
 We download the image data using [img2dataset](https://github.com/rom1504/img2dataset), which stores it as `.tar` shards with the images and captions to be consumed by [webdataset](https://github.com/webdataset/webdataset/).
@@ -87,6 +87,36 @@ By default, we also download the parquet files corresponding to the pools we pro
 ### Optimizing the download
 
 When using img2dataset, there are several ways to optimize the download process such as using multiple nodes in a distributed environment or setting up a DNS resolver to increase the success rate of images being downloaded. See the [img2dataset repository](https://github.com/rom1504/img2dataset) for further instructions on how to optimize the download process, as well as information on potential issues during the download.
+
+## Metadata
+
+To bootstrap possible filtering methods, we release metadata in a series of `.parquet` and `.npz` files that contain metadata. For details on aquiring these files, see the section on [downloading](#downloading-commonpool).
+
+Each `.parquet` file has the following columns:
+| attribute / key name      | description                                                                      |
+|:--------------------------|:---------------------------------------------------------------------------------|
+| uid                       | unique id to identify the sample                                                 |
+| url                       | url pointing to image for download                                               |
+| text                      | alt text "caption" for the image                                                 |
+| original_width            | original width before resizing                                                   |
+| original_height           | original height before resizing                                                  |
+| sha256                    | sha256 computed on image during original download, to gaurd against data changes |
+| clip_b32_similarity_score | OpenAI CLIP B/32 similarity between image and text                               |
+| clip_l14_similarity_score | OpenAI CLIP L/14 similarity between image and text                               |
+| face_bboxes               | detected face bounding boxes for automatic face blurring                         |
+
+Each `.npz` file has the following columns:
+| attribute | description                                                                                                                          |
+|-----------|--------------------------------------------------------------------------------------------------------------------------------|
+| b32_img   | OpenAI CLIP B/32 image feature (L2 normalized)                                                                                 |
+| b32_txt   | OpenAI CLIP B/32 text feature (L2 normalized)                                                                                  |
+| l14_img   | OpenAI CLIP L/14 image feature (L2 normalized)                                                                                 |
+| l14_txt   | OpenAI CLIP L/14 text feature (L2 normalized)                                                                                  |
+| dedup     | [ISC21 features](https://github.com/lyakaap/ISC21-Descriptor-Track-1st) used for decontamination against evaluation set images |
+
+Additionally here are some helpful notes on pre-processing. For computing features, all images are resized with largest dimension no larger than 512 pixels using lanczos interpolation if necessary. Features are then computed at the perscribed resolution (e.g., 224 for CLIP), using proper transformation. All provided feature are computed without faces blurred.
+
+For an implementation of our pre-processing and metadata tagging pipeline, see the [dataset2metadata](https://github.com/mlfoundations/dataset2metadata) repo.
 
 ## Selecting samples in the filtering track
 
