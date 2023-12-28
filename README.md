@@ -107,7 +107,7 @@ Each `.parquet` file has the following columns:
 
 Each `.npz` file has the following columns:
 | attribute | description                                                                                                                          |
-|-----------|--------------------------------------------------------------------------------------------------------------------------------|
+|:----------|:-------------------------------------------------------------------------------------------------------------------------------|
 | b32_img   | OpenAI CLIP B/32 image feature (L2 normalized)                                                                                 |
 | b32_txt   | OpenAI CLIP B/32 text feature (L2 normalized)                                                                                  |
 | l14_img   | OpenAI CLIP L/14 image feature (L2 normalized)                                                                                 |
