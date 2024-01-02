@@ -80,7 +80,7 @@ dependencies:
       - huggingface-hub==0.14.1
       - idna==3.4
       - imageio==2.22.4
-      - img2dataset==1.40.0
+      - img2dataset @ https://github.com/Spawning-Inc/img2dataset/archive/refs/heads/main.tar.gz
       - importlib-resources==5.10.0
       - isodate==0.6.1
       - jmespath==1.0.1
