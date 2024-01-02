@@ -143,6 +143,20 @@ if __name__ == "__main__":
         default="datacomp",
         help="Name of W&B project used (default datacomp)",
     )
+    parser.add_argument(
+        "--distributor",
+        type=str,
+        required=False,
+        default="multiprocessing",
+        help="Distributor to use for img2dataset",
+    )
+    parser.add_argument(
+        "--subjob_size",
+        type=int,
+        required=False,
+        default=1000,
+        help="Subjob size for img2dataset",
+    )
 
     args = parser.parse_args()
 
@@ -235,6 +249,8 @@ if __name__ == "__main__":
             retries=args.retries,
             enable_wandb=args.enable_wandb,
             wandb_project=args.wandb_project,
+            distributor=args.distributor,
+            subjob_size=args.subjob_size,
         )
     else:
         print(f"Skipping image data download.")
