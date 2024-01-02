@@ -45,6 +45,7 @@ dependencies:
       - click==8.1.3
       - clip-benchmark==1.4.0
       - cloudpathlib==0.13.0
+      - cloudpathlib[s3]==0.13.0
       - colorama==0.4.4
       - contourpy==1.0.7
       - cryptography==39.0.2
@@ -145,6 +146,7 @@ dependencies:
       - requests-oauthlib==1.3.1
       - responses==0.18.0
       - rsa==4.7.2
+      - s3fs==2022.11.0
       - scikit-image==0.19.3
       - scikit-learn==1.1.3
       - scipy==1.9.3
