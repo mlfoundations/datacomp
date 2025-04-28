@@ -212,7 +212,7 @@ To evaluate, run the following command:
 python evaluate.py  --train_output_dir $train_output_dir/$exp_name
 ```
 
-If you have already donwloaded the datasets, you can use the flag `--data_dir` to point the code to the path where the data is stored.
+If you have already downloaded the datasets, you can use the flag `--data_dir` to point the code to the path where the data is stored.
 By default, the evaluation script outputs to the same directory as `$train_output_dir`. This can be changed with the flag `--output_dir` on the evaluation script.
 
 **Note:** This will not submit to our leaderboard unless you pass the `--submit` flag.
